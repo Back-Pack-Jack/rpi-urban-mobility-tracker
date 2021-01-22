@@ -5,8 +5,8 @@ from collections import defaultdict
 from tkinter import Tk, Canvas, mainloop, PhotoImage, Label
 from PIL import ImageTk, Image 
 
-IMG_PATH = 'highway02_frame000010.png'
-CSV_PATH = 'object_paths_highway02_pednet.txt'
+IMG_PATH = 'umt/highway02_frame000010.png'
+CSV_PATH = 'umt/object_paths_highway02_pednet.txt'
 
 gates = []
 
@@ -83,10 +83,11 @@ def ccw(a, b, c):
 def cross(s1, s2):
     a, b = s1
     c, d = s2
-    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, b, c) != ccw(a, b, d)
+    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, b, c) != ccw(a, b, d) 
 
 # now lets cycle throught each objects trajectory and determine if it has crossed either of the gates
 gate_counts_dict = defaultdict(int)
+gate_counts_dict2 = defaultdict(list)
 for n, obj_path in df.groupby(by='id'):
     
     # cycle through each time step of trajectory in ascending order
@@ -100,13 +101,18 @@ for n, obj_path in df.groupby(by='id'):
         
         # if a previous time step is found, let's check if it crosses any of the gates
         if xy_t1.shape[0]>0:
+            timecat = tuple(xy_t1[['time', 'class']].values[0])
             xy_t1 = tuple(xy_t1[['cx', 'cy']].values[0])
             
             # cycle through gates
             for g, gate in enumerate(gates):
-                gate_counts_dict[g] += cross(gates[g], [xy_t0, xy_t1])        
-
+                if cross(gates[g], [xy_t0, xy_t1]):
+                    print(timecat)
+                    print(g)
+                    #gate_counts_dict2[g] += [gates[g], obj_path['time'], obj_path['class']]
+                #gate_counts_dict[g] += cross(gates[g], [xy_t0, xy_t1])      # Method reads into cross and when true is returned it adds one to the dictionary -->> Need to change to list  
+        
 # print some results
-for k, v in gate_counts_dict.items():
+for k, v in gate_counts_dict2.items():
     print(f'GATE {k}: {v}')
 
