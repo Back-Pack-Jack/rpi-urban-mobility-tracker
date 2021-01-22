@@ -10,9 +10,6 @@ from scipy.spatial.distance import cosine
 import imutils
 from imutils.video import VideoStream
 
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
-
 # deep sort
 from umt.deep_sort import generate_detections as gd
 from umt.deep_sort.detection import Detection
@@ -171,7 +168,7 @@ def generate_detections(pil_img_obj, interpreter, threshold):
         bboxes[:,2] = bboxes[:,2] * pil_img_obj.size[1]
         bboxes[:,3] = bboxes[:,3] * pil_img_obj.size[0]
     
-	# convert bboxes from [ymin, xmin, ymax, xmax] -> [xmin, ymin, width, height]
+    # convert bboxes from [ymin, xmin, ymax, xmax] -> [xmin, ymin, width, height]
     for box in bboxes:
         xmin = int(box[1])
         ymin = int(box[0])
@@ -185,8 +182,8 @@ def generate_detections(pil_img_obj, interpreter, threshold):
     # munge into deep sort detection objects
     detections = [Detection(bbox, score, class_name, feature) for bbox, score, class_name, feature in zip(bboxes, scores, classes, features)]
 
-	# run non-maximum suppression
-	# borrowed from: https://github.com/nwojke/deep_sort/blob/master/deep_sort_app.py#L174
+    # run non-maximum suppression
+    # borrowed from: https://github.com/nwojke/deep_sort/blob/master/deep_sort_app.py#L174
     boxes = np.array([d.tlwh for d in detections])
     scores = np.array([d.confidence for d in detections])
     indices = non_max_suppression(boxes, nms_max_overlap, scores)

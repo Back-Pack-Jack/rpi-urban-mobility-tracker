@@ -1,0 +1,4 @@
+{
+    "jupyter.jupyterServerType": "local",
+    "python.pythonPath": "/home/pi/venv/bin/python3.7"
+}

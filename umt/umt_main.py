@@ -3,6 +3,8 @@
 import os
 import time
 import argparse
+import signal
+import sys
 
 import cv2
 import numpy as np
@@ -20,7 +22,7 @@ from umt.umt_utils import generate_detections
 
 #--- CONSTANTS ----------------------------------------------------------------+
 
-LABEL_PATH = "models/tflite/coco_ssd_mobilenet_v1_1.0_quant_2018_06_29/labelmap.txt"
+LABEL_PATH = "models/pednet/model/labels.txt"
 DEFAULT_LABEL_MAP_PATH = os.path.join(os.path.dirname(__file__), LABEL_PATH)
 TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
 
@@ -29,9 +31,24 @@ MAX_COSINE_DIST = 0.4
 NN_BUDGET = None
 NMS_MAX_OVERLAP = 1.0
 
+#--- FILES --------------------------------------------------------------------+
+
+tracked_list = []
+
 #--- MAIN ---------------------------------------------------------------------+
 
+def signal_handler(sig, frame):
+    print('You pressed ctrl + c')
+    with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
+        for x in tracked_list:
+            print(x, file=out_file)
+
+    sys.exit(0)
+
 def main():
+    signal.signal(signal.SIGINT, signal_handler)
+    print('Running. Press Ctrl + C to exit.')
+
     # parse arguments
     parser = argparse.ArgumentParser(description='--- Raspbery Pi Urban Mobility Tracker ---')
     parser.add_argument('-modelpath', dest='model_path', type=str, required=False, help='specify path of a custom detection model')
@@ -76,69 +93,70 @@ def main():
 
     # main tracking loop
     print('\n> TRACKING...')
-    with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
-        for i, pil_img in enumerate(img_generator(args)):
-        
-            f_time = int(time.time())
-            print('> FRAME:', i)
-            
-            # add header to trajectory file
-            if i == 0:
-            	header = (f'frame_num,rpi_time,obj_class,obj_id,obj_age,'
-            	    'obj_t_since_last_update,obj_hits,'
-            	    'xmin,ymin,xmax,ymax')
-            	print(header, file=out_file)
+    #with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
 
-            # get detections
-            detections = generate_detections(pil_img, interpreter, args.threshold)
-			
-            # proceed to updating state
-            if len(detections) == 0: print('   > no detections...')
-            else:
+    for i, pil_img in enumerate(img_generator(args)):
+    
+        f_time = int(time.time())
+        print('> FRAME:', i)
+        
+        # add header to trajectory file
+        if i == 0:
+            header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age,'
+                'obj_t_since_last_update, obj_hits,'
+                'xmin, ymin, xmax, ymax')
+            tracked_list.append(header)
+
+        # get detections
+        detections = generate_detections(pil_img, interpreter, args.threshold)
+        
+        # proceed to updating state
+        if len(detections) == 0: print('> no detections...')
+        else:
+        
+            # update tracker
+            tracker.predict()
+            tracker.update(detections)
             
-                # update tracker
-                tracker.predict()
-                tracker.update(detections)
-                
-                # save object locations
-                if len(tracker.tracks) > 0:
-                    for track in tracker.tracks:
-                        bbox = track.to_tlbr()
-                        class_name = labels[track.get_class()]
-                        row = (f'{i},{f_time},{class_name},'
-                            f'{track.track_id},{int(track.age)},'
-                            f'{int(track.time_since_update)},{str(track.hits)},'
-                            f'{int(bbox[0])},{int(bbox[1])},'
-                            f'{int(bbox[2])},{int(bbox[3])}')
-                        print(row, file=out_file)
-                
-            # only for live display
-            if args.live_view or args.save_frames:
-            
-            	# convert pil image to cv2
-                cv2_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
-            
-            	# cycle through actively tracked objects
+            # save object locations
+            if len(tracker.tracks) > 0:
                 for track in tracker.tracks:
-                    if not track.is_confirmed() or track.time_since_update > 1:
-                        continue
-                    
-                    # draw detections and label
                     bbox = track.to_tlbr()
                     class_name = labels[track.get_class()]
-                    color = COLORS[int(track.track_id) % len(COLORS)].tolist()
-                    cv2.rectangle(cv2_img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
-                    cv2.rectangle(cv2_img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(str(class_name))+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
-                    cv2.putText(cv2_img, str(class_name) + "-" + str(track.track_id), (int(bbox[0]), int(bbox[1]-10)), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
-
-                # live view
-                if args.live_view:
-                    cv2.imshow("tracker output", cv2_img)
-                    cv2.waitKey(1)
-                    
-                # persist frames
-                if args.save_frames: cv2.imwrite(f'output/frame_{i}.jpg', cv2_img)
+                    row = (f'{i},{f_time},{class_name},'
+                        f'{track.track_id},{int(track.age)},'
+                        f'{int(track.time_since_update)},{str(track.hits)},'
+                        f'{int(bbox[0])},{int(bbox[1])},'
+                        f'{int(bbox[2])},{int(bbox[3])}')
+                    tracked_list.append(row)
+            
+        # only for live display
+        if args.live_view or args.save_frames:
+        
+            # convert pil image to cv2
+            cv2_img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+        
+            # cycle through actively tracked objects
+            for track in tracker.tracks:
+                if not track.is_confirmed() or track.time_since_update > 1:
+                    continue
                 
+                # draw detections and label
+                bbox = track.to_tlbr()
+                class_name = labels[track.get_class()]
+                color = COLORS[int(track.track_id) % len(COLORS)].tolist()
+                cv2.rectangle(cv2_img, (int(bbox[0]), int(bbox[1])), (int(bbox[2]), int(bbox[3])), color, 2)
+                cv2.rectangle(cv2_img, (int(bbox[0]), int(bbox[1]-30)), (int(bbox[0])+(len(str(class_name))+len(str(track.track_id)))*17, int(bbox[1])), color, -1)
+                cv2.putText(cv2_img, str(class_name) + "-" + str(track.track_id), (int(bbox[0]), int(bbox[1]-10)), cv2.FONT_HERSHEY_PLAIN, 1, (255,255,255), 1)
+
+            # live view
+            if args.live_view:
+                cv2.imshow("tracker output", cv2_img)
+                cv2.waitKey(1)
+                
+            # persist frames
+            if args.save_frames: cv2.imwrite(f'output/frame_{i}.jpg', cv2_img)
+            
     cv2.destroyAllWindows()         
     pass
 
@@ -147,5 +165,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+    
      
 #--- END ----------------------------------------------------------------------+
