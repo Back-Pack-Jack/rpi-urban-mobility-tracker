@@ -10,6 +10,7 @@ CSV_PATH = 'umt/object_paths_highway02_pednet.txt'
 
 gates = []
 
+# --- Window for drawing gates --------------------------
 def draw_line(event):
     global click_number
     global x1,y1
@@ -101,18 +102,12 @@ for n, obj_path in df.groupby(by='id'):
         
         # if a previous time step is found, let's check if it crosses any of the gates
         if xy_t1.shape[0]>0:
-            timecat = tuple(xy_t1[['time', 'class']].values[0])
+            timecat = list(tuple(xy_t1[['time', 'class']].values[0]))
             xy_t1 = tuple(xy_t1[['cx', 'cy']].values[0])
             
             # cycle through gates
             for g, gate in enumerate(gates):
                 if cross(gates[g], [xy_t0, xy_t1]):
+                    timecat.insert(0, g)
                     print(timecat)
-                    print(g)
-                    #gate_counts_dict2[g] += [gates[g], obj_path['time'], obj_path['class']]
-                #gate_counts_dict[g] += cross(gates[g], [xy_t0, xy_t1])      # Method reads into cross and when true is returned it adds one to the dictionary -->> Need to change to list  
-        
-# print some results
-for k, v in gate_counts_dict2.items():
-    print(f'GATE {k}: {v}')
 
