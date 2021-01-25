@@ -7,14 +7,15 @@ from PIL import ImageTk, Image
 import mqtt
 import pickle
 from mqtt import init_mqtt
+import bz2
+import sys
+import client_sock
 
-init_mqtt()
-client = mqtt.client
-ret = client.publish('cycle/count','hello')
-print(ret)
+# --- Initialises the MQTT client to send a message to the server
 
-IMG_PATH = 'umt/highway02_frame000010.png'
-CSV_PATH = 'umt/object_paths_highway02_pednet.txt'
+IMG_PATH = 'rpi-urban-mobility-tracker/umt/highway02_frame000010.png'
+CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths_highway02_pednet.txt'
+DEVICE = 'Cycle1'
 
 gates = []
 detections = []
@@ -132,9 +133,15 @@ def crossed_gates():
                 for g, gate in enumerate(gates):
                     if cross(gates[g], [xy_t0, xy_t1]):
                         timecat.insert(0, g)
+                        timecat.insert(0, DEVICE)
                         detections.insert(0, timecat)
-                    
-
+                        
+# --- Pickle the detection list to a byte file --------
 crossed_gates()
-print(detections)
+transfer_file = pickle.dumps(detections)
+filename = "rpi-urban-mobility-tracker/detections.ssg"
+client_sock.sendFile(filename, DEVICE)
+
+#outfile = open('detections.ssg', 'wb')
+#pickle.dump(detections, outfile)
 

@@ -9,6 +9,7 @@ import subprocess
 import time
 import paho.mqtt.client as mqtt 
 import threading
+import hashlib
 
 # Initialize Logging
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
@@ -18,10 +19,11 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
     
 # Global Variables
-BROKER_HOST = "192.168.0.13"
+BROKER_HOST = "192.168.1.236"
 BROKER_PORT = 1883
 CLIENT_ID = "cycle_1"
 TOPIC = [("cycle/live", 2)]
+DATA_BLOCK_SIZE = 2000
 process = None
 client = None  # MQTT client instance. See init_mqtt()
 logger = logging.getLogger("mqtt.MQTT_Client")
@@ -106,6 +108,7 @@ def on_message( client, user_data, msg):
         logger.error("Unhandled message topic {} with payload ") #+ str(msg.topic, msg.payload)
 
 def on_publish(client, user_data, connection_result_code):
+    logger.info("Message Published")
     pass
 
 def signal_handler( sig, frame):
