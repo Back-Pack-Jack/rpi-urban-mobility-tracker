@@ -8,6 +8,7 @@ import os
 import subprocess
 import time
 import paho.mqtt.client as mqtt 
+import paho.mqtt.publish as publish
 import threading
 import hashlib
 
@@ -27,36 +28,8 @@ DATA_BLOCK_SIZE = 2000
 process = None
 client = None  # MQTT client instance. See init_mqtt()
 logger = logging.getLogger("mqtt.MQTT_Client")
-logger.info("Creating an instance of MQTT_Client")
-'''
-def set_barrier(data):
 
-    livestream = None
-    rfid = None
-    
-    if "rfid" in data:
-        rfid = data["rfid"]
-        
-        if isinstance(rfid, str):
-            rfid_signal(rfid)
-            logger.info("Request for barrier approved")
-        else:
-            logger.info("Request for unknown barrier status of '{}'. We'll null the value.".format(rfid))      
-    
-    elif "livestream" in data:
-        livestream = data["livestream"]
-        
-        if isinstance(livestream, str):
-                Live_Stream.begin(livestream)
-                logger.info("Request for live stream {}.".format(livestream))
-        else:
-            logger.info("Request for unknown live status '{}'. We'll null the value.".format(livestream))
-            livestream = None # off.
-    
-    else:
-        logger.info("Message '{}' did not contain property.".format(data))
-    
-'''
+
 """
 MQTT Related Functions and Callbacks
 """
@@ -84,50 +57,35 @@ def on_disconnect( client, user_data, disconnection_result_code):
 
 
 
-def on_message( client, user_data, msg):                                                         
-    """Callback called when a message is received on a subscribed topic."""
+def on_message( client, user_data, msg): # Callback called when a message is received on a subscribed topic.                                                    
     logger.debug("Received message for topic {}: {}".format( msg.topic, msg.payload))
+    msg_dec = msg.payload.decode("utf-8") # Writes the decoded msg to an object
 
-    data = None
 
-    try:
-        data = json.loads(msg.payload.decode("UTF-8"))                                         
-    except json.JSONDecodeError as e:
-        logger.error("JSON Decode Error: " + msg.payload.decode("UTF-8"))
+def init_UUID(device):
+    logger.info("Sending UUID to server")
+    publish.single("cycle/init", device, hostname=BROKER_HOST, port=BROKER_PORT)
     
-    topics = []
-    for a_topic in TOPIC:
-        topics.append(a_topic[0])
-
-    if msg.topic in topics: 
-        print(topics)                                                                    
-        #set_barrier(data)                                                                    
-        logger.info(data)
-
-    else:
-        logger.error("Unhandled message topic {} with payload ") #+ str(msg.topic, msg.payload)
+    
 
 def on_publish(client, user_data, connection_result_code):
     logger.info("Message Published")
     pass
 
-def signal_handler( sig, frame):
-    """Capture Control+C and disconnect from Broker."""
 
+def signal_handler( sig, frame): # Capture Control+C and disconnect from Broker.
     logger.info("You pressed Control + C. Shutting down, please wait...")
-
     client.disconnect() # Graceful disconnection.
     sys.exit(0)
 
 
 
 def init_mqtt():
+
+    logger.info("Creating an instance of MQTT_Client")
+    
     global client
 
-    # Our MQTT Client. See PAHO documentation for all configurable options.
-    # "clean_session=True" means we don"t want Broker to retain QoS 1 and 2 messages
-    # for us when we"re offline. You"ll see the "{"session present": 0}" logged when
-    # connected.
     logger.info("Initialising Client")
     client = mqtt.Client(
         client_id=CLIENT_ID,

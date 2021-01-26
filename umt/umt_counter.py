@@ -92,15 +92,17 @@ def display_gates():
     ax.set_aspect('equal')
     plt.show() # Show plot lines in screen
 
+
 try:
-    with open('boundries.ssg', 'rb') as f:
+    with open('gates.ssg', 'rb') as f:
         gates = pickle.load(f)
 except FileNotFoundError:
     create_gates()
     display_gates()
-    with open("boundries.ssg", "wb") as f:
+    with open("gates.ssg", "wb") as f:
         pickle.dump(gates, f)
-    #print('File doesnt exist')
+
+
 
 def ccw(a, b, c):
     return (c[1] - a[1]) * (b[0] - a[0]) > (b[1] - a[1]) * (c[0] - a[0])
