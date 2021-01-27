@@ -62,7 +62,7 @@ def on_message( client, user_data, msg): # Callback called when a message is rec
     msg_dec = msg.payload.decode("utf-8") # Writes the decoded msg to an object
 
 
-def init_UUID(device):
+def init_UUID(device):  # When the device initialises it sends a MQTT message with it's UUID back the server
     logger.info("Sending UUID to server")
     publish.single("cycle/init", device, hostname=BROKER_HOST, port=BROKER_PORT)
     

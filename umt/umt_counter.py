@@ -10,12 +10,24 @@ from mqtt import init_mqtt
 import bz2
 import sys
 import client_sock
+import pickle
+import schedule
+import time
+import logging
+
+logging.basicConfig(level=logging.WARNING)  # Global logging configuration
+logger = logging.getLogger("umt - umt_counter")  # Logger for this module
+logger.setLevel(logging.INFO) # Debugging for this file.
+
+with open('rpi-urban-mobility-tracker/umt/uuid.ssg', 'rb') as f:
+            UUID = pickle.load(f)
+            logger.info("Loaded UUID")
 
 # --- Initialises the MQTT client to send a message to the server
 
 IMG_PATH = 'rpi-urban-mobility-tracker/umt/highway02_frame000010.png'
 CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths_highway02_pednet.txt'
-DEVICE = 'Cycle1'
+DEVICE = UUID
 
 gates = []
 detections = []
@@ -139,11 +151,17 @@ def crossed_gates():
                         detections.insert(0, timecat)
                         
 # --- Pickle the detection list to a byte file --------
-crossed_gates()
-transfer_file = pickle.dumps(detections)
-filename = "rpi-urban-mobility-tracker/detections.ssg"
-client_sock.sendFile(filename, DEVICE)
+def count():
+    crossed_gates()
+    transfer_file = pickle.dumps(detections)
+    filename = "rpi-urban-mobility-tracker/detections.ssg"
+    client_sock.sendFile(filename, DEVICE)
+    logger.info("Transfer of detection information to server complete!")
 
-#outfile = open('detections.ssg', 'wb')
-#pickle.dump(detections, outfile)
+schedule.every(5).minutes.do(count)
+
+while 1:
+    schedule.run_pending()
+    time.sleep(1)
+
 
