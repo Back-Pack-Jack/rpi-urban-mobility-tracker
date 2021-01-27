@@ -32,7 +32,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'umt = umt.umt_main:main'
+            'umt = umt.umt_run:main'
         ]
     },
     package_data={

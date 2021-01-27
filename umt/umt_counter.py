@@ -25,8 +25,8 @@ with open('rpi-urban-mobility-tracker/umt/uuid.ssg', 'rb') as f:
 
 # --- Initialises the MQTT client to send a message to the server
 
-IMG_PATH = 'rpi-urban-mobility-tracker/umt/highway02_frame000010.png'
-CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths_highway02_pednet.txt'
+IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
+CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths.csv' 
 DEVICE = UUID
 
 gates = []
@@ -158,7 +158,7 @@ def count():
     client_sock.sendFile(filename, DEVICE)
     logger.info("Transfer of detection information to server complete!")
 
-schedule.every(5).minutes.do(count)
+schedule.every(15).minutes.do(count)
 
 while 1:
     schedule.run_pending()

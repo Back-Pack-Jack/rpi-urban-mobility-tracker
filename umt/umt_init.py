@@ -2,6 +2,9 @@ import uuid
 import pickle
 import mqtt
 import logging
+from picamera import PiCamera
+from time import sleep
+
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("init - umt_init")  # Logger for this module
@@ -20,3 +23,19 @@ def initialize_device():
         mqtt.init_UUID(UUID)
         with open("uuid.ssg", "wb") as f:
             pickle.dump(UUID, f)
+
+def take_picture():
+    camera = PiCamera()
+    camera.start_preview()
+    sleep(2)
+    camera.capture('rpi-urban-mobility-tracker/umt/image_capture.png')
+    camera.stop_preview()
+
+def initialize_picture():
+    try:
+        f = open("image_capture.png")
+    except IOError:
+        print("No image found, taking a new one.")
+        take_picture()
+    finally:
+        f.close()

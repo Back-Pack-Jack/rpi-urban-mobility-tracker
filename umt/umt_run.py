@@ -11,8 +11,10 @@ import umt_counter
 
 #umt init
 from umt.umt_init import initialize_device
+from umt.umt_init import initialize_picture
 
 initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location
+initialize_picture()
 
 def main():
     for umt in ('umt_main', 'mqtt', 'umt_counter'):
