@@ -1,25 +1,38 @@
 import multiprocessing
-
-#umt main
-import umt_main
-
-#mqtt
-import mqtt
-
-#umt counter
-import umt_counter
+import subprocess
+import logging
+import signal
 
 #umt init
-from umt.umt_init import initialize_device
-from umt.umt_init import initialize_picture
+from umt_init import initialize_device
+from umt_init import initialize_picture
+from umt_init import initialize_zones
+
+logging.basicConfig(level=logging.WARNING)  # Global logging configuration
+logger = logging.getLogger("umt - run")  # Logger for this module
+logger.setLevel(logging.INFO) # Debugging for this file.
+
 
 initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location
+logger.info('Initializing Device')
 initialize_picture()
+logger.info('Initializing Picture')
+initialize_zones()
+logger.info('Initializing Zones')
 
-def main():
-    for umt in ('umt_main', 'mqtt', 'umt_counter'):
-        p = multiprocessing.Process(target=lambda: __import__(umt))
-        p.start
+logger.info('Running all scripts')
 
-if __name__ == '__main__':
-    main()
+def signal_handler(sig, frame): # Capture Control+C and disconnect from Broker.
+    logger.info("You pressed Control + C. Shutting down, please wait...")
+    p1.send_signal(signal.SIGINT)
+    p2.send_signal(signal.SIGINT)
+    p3.send_signal(signal.SIGINT)
+
+signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
+
+p1 = subprocess.Popen(['python', 'umt/umt_main.py'])
+p2 = subprocess.Popen(['python', 'umt/counter.py'])
+p3 = subprocess.Popen(['python', 'umt/mqtt.py'])
+
+
+

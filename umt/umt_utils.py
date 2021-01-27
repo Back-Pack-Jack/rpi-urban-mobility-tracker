@@ -11,9 +11,9 @@ import imutils
 from imutils.video import VideoStream
 
 # deep sort
-from umt.deep_sort import generate_detections as gd
-from umt.deep_sort.detection import Detection
-from umt.deep_sort.preprocessing import non_max_suppression
+from deep_sort import generate_detections as gd
+from deep_sort.detection import Detection
+from deep_sort.preprocessing import non_max_suppression
 
 # constants
 nms_max_overlap = 1.0
@@ -85,8 +85,8 @@ def initialize_img_source(args):
 
 def initialize_detector(args):
 
-    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
-    CPU_PATH = 'models/tflite/coco_ssd_mobilenet_v1_1.0_quant_2018_06_29/detect.tflite'
+    TPU_PATH = 'models/pednet/model/ped_tpu.tflite'
+    CPU_PATH = 'models/pednet/model/pednet.tflite'
 
     # initialize coral tpu model
     if args.tpu:
