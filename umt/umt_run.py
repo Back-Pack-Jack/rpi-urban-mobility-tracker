@@ -30,9 +30,9 @@ def signal_handler(sig, frame): # Capture Control+C and disconnect from Broker.
 
 signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
 
-p1 = subprocess.Popen(['python', 'umt/umt_main.py'])
-p2 = subprocess.Popen(['python', 'umt/counter.py'])
-p3 = subprocess.Popen(['python', 'umt/mqtt.py'])
+p1 = subprocess.Popen(['python', 'umt_main.py'])
+p2 = subprocess.Popen(['python', 'umt_counter.py'])
+p3 = subprocess.Popen(['python', 'mqtt.py'])
 
 
 

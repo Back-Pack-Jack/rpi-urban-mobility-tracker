@@ -19,14 +19,14 @@ logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("umt - umt_counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
-with open('umt/uuid.ssg', 'rb') as f:
+with open('uuid.ssg', 'rb') as f:
             UUID = pickle.load(f)
             logger.info("Loaded UUID")
 
 # --- Initialises the MQTT client to send a message to the server
 
-IMG_PATH = 'umt/image_capture.png'
-CSV_PATH = 'umt/object_paths.csv' 
+IMG_PATH = 'image_capture.png'
+CSV_PATH = 'object_paths.csv' 
 DEVICE = UUID
 
 gates = []
@@ -43,7 +43,7 @@ df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
 df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
 
 try:
-        with open('gates.ssg', 'rb') as f:
+        with open('gates.ssg', 'rb') as f: 
             gates = pickle.load(f)
 except:
     logger.info('Gate load error')

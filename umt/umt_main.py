@@ -60,7 +60,7 @@ def main():
     parser.add_argument('-threshold', dest='threshold', type=float, default=0.5, required=False, help='specify a custom inference threshold')
     parser.add_argument('-tpu', dest='tpu', required=False, default=True, action='store_true', help='add this when using a coral usb accelerator')
     parser.add_argument('-nframes', dest='nframes', type=int, required=False, default=10, help='specify nunber of frames to process')
-    parser.add_argument('-display', dest='live_view', required=False, default=False, action='store_true', help='add this flag to view a live display. note, that this will greatly slow down the fps rate.')
+    parser.add_argument('-display', dest='live_view', required=False, default=True, action='store_true', help='add this flag to view a live display. note, that this will greatly slow down the fps rate.')
     parser.add_argument('-save', dest='save_frames', required=False, default=False, action='store_true', help='add this flag if you want to persist the image output. note, that this will greatly slow down the fps rate.')
     args = parser.parse_args()
     
@@ -70,7 +70,6 @@ def main():
     if args.label_map_path: assert os.path.exists(args.label_map_path)==True, "can't find the specified label map..."
     if args.video_path: assert os.path.exists(args.video_path)==True, "can't find the specified video file..."
 
-    args.tpu
 
     print('> INITIALIZING UMT...')
     print('   > THRESHOLD:',args.threshold)
