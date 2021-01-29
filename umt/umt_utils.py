@@ -85,7 +85,7 @@ def initialize_img_source(args):
 
 def initialize_detector(args):
 
-    TPU_PATH = 'models/pednet/model/ped_tpu.tflite'
+    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite' #'models/pednet/model/ped_tpu.tflite' 
     CPU_PATH = 'models/pednet/model/pednet.tflite'
 
     # initialize coral tpu model

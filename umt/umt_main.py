@@ -20,6 +20,11 @@ from umt_utils import initialize_detector
 from umt_utils import initialize_img_source
 from umt_utils import generate_detections
 
+if sys.platform == 'linux' or platform == 'linux2':
+    TRACKER_OUTPUT_TEXT_FILE = 'umt/object_paths.csv'
+if sys.platform == 'darwin':
+    TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
+
 #--- CONSTANTS ----------------------------------------------------------------+
 
 LABEL_PATH = "models/pednet/model/labels.txt"

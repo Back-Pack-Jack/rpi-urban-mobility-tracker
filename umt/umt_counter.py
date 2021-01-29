@@ -23,11 +23,11 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
 if platform == 'linux' or platform == 'linux2':
-    UUID = 'uuid.ssg'
-    IMG_PATH = 'image_capture.png'
-    CSV_PATH = 'object_paths.csv' 
-    DETECTIONS = 'detections.ssg'
-    GATES = 'gates.ssg'
+    UUID = 'umt/uuid.ssg'
+    IMG_PATH = 'umt/image_capture.png'
+    CSV_PATH = 'umt/object_paths.csv' 
+    DETECTIONS = 'umt/detections.ssg'
+    GATES = 'umt/gates.ssg'
 if platform == 'darwin':
     UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
     IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'

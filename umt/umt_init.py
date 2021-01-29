@@ -2,7 +2,7 @@ import uuid
 import pickle
 from mqtt import init_UUID
 import logging
-#rom picamera import PiCamera
+from picamera import PiCamera
 from time import sleep
 import pandas as pd
 from PIL import Image
@@ -21,25 +21,26 @@ class UMTinit:
 
     def __init__(self):
         if platform == 'linux' or platform == 'linux2':
-            self.UUID = 'uuid.ssg'
-            self.IMG_PATH = 'image_capture.png'
-            self.GATES = 'gates.ssg'
+            self.DEV_UUID = 'umt/uuid.ssg'
+            self.IMG_PATH = 'umt/image_capture.png'
+            self.GATES = 'umt/gates.ssg'
         if platform == 'darwin':
-            self.UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
+            self.DEV_UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
             self.IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
             self.GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
+        self.gates = []
 
     # Device looks to find it's UUID no. if it doesn't exist it generates one, communicates it to the server and saves it to 'uuid.ssg'
     def initialize_device(self):
         try:
-            with open(self.UUID, 'rb') as f:
-                self.UUID = pickle.load(f)
+            with open(self.DEV_UUID, 'rb') as f:
+                self.DEV_UUID = pickle.load(f)
                 logger.info("Loaded UUID")
         except FileNotFoundError:
-            self.UUID = str(uuid.uuid4())
-            init_UUID(self.UUID)
-            with open(self.UUID, "wb") as f:
-                pickle.dump(self.UUID, f)
+            device = str(uuid.uuid4())
+            init_UUID(device)
+            with open(self.DEV_UUID, "wb") as f:
+                pickle.dump(device, f)
 
     def take_picture(self):
         camera = PiCamera()
@@ -54,7 +55,7 @@ class UMTinit:
             f.close()
         except IOError:
             print("No image found, taking a new one.")
-            take_picture()
+            self.take_picture()
 
     # --- Creating Gates --------------------------
 
@@ -70,7 +71,7 @@ class UMTinit:
             y2=event.y
             line = C.create_line(x1,y1,x2,y2,fill='orange',width=5, dash=(4,2))
             gate = [(x1,y1), (x2,y2)]
-            gates.append(gate)
+            self.gates.append(gate)
             C.tag_raise(line)
             click_number=0
 
@@ -79,7 +80,7 @@ class UMTinit:
         C.pack(side='top',fill='both',expand='yes')
         C.create_image(0,0, image=background_image, anchor='nw')
 
-        C.bind('<Button-1>',draw_line)
+        C.bind('<Button-1>',self.draw_line)
 
         global click_number
         click_number=0
@@ -94,9 +95,8 @@ class UMTinit:
         fig, ax = plt.subplots(figsize=(15,15))
         plt.imshow(pil_img)
 
-        print(gates)
 
-        for g, gate in enumerate(gates):
+        for g, gate in enumerate(self.gates):
             x1, y1 = gate[0]
             x2, y2 = gate[1]
             x, y = [x1, x2], [y1, y2]
@@ -120,16 +120,15 @@ class UMTinit:
         
         try:
             with open(self.GATES, 'rb') as f:
-                gates = pickle.load(f)
+                self.gates = pickle.load(f)
         except FileNotFoundError:
             my_window = Tk() # Defines Tkinter Window
             background_image = ImageTk.PhotoImage(Image.open(self.IMG_PATH)) # Creates an img object
             cwidth = background_image.width()
             cheight = background_image.height()
             C = Canvas(my_window,width=cwidth,height=cheight,background='white')
-            gates = []
-            create_gates()
-            display_gates()
+            self.create_gates()
+            self.display_gates()
             with open(self.GATES, "wb") as f:
-                pickle.dump(gates, f)
+                pickle.dump(self.gates, f)
         
