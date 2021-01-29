@@ -4,35 +4,51 @@ import os
 import sys
 import pickle
 import logging
+from sys import platform
+import time
+import logging
 
-DETECTIONS = 'detections.ssg' 
-DETECTION_DIR = os.path.join(os.path.dirname(__file__), DETECTIONS)
-print(DETECTION_DIR)
 
-with open(DETECTIONS, 'rb') as f:
-    detections = pickle.load(f)
-    #logger.info("Loaded Detections")
+logging.basicConfig(level=logging.WARNING)  # Global logging configuration
+logger = logging.getLogger("UMT - Client Socket")  # Logger for this module
+logger.setLevel(logging.INFO) # Debugging for this file.
+
+# --- Server Network Information
+HOST = "192.168.1.236" # the ip address or hostname of the server, the receiver
+PORT = 5001 # the port, let's use 5001
+SEPARATOR = "<SEPARATOR>"
+BUFFER_SIZE = 4096 # send 4096 bytes each time step
+
+# --- Changing directory URL depending on the platform 
+if platform == 'linux' or platform == 'linux2':
+    DETECTIONS = 'detections.ssg' 
+if platform == 'darwin':
+    DETECTIONS = 'rpi-urban-mobility-tracker/umt/boundries.ssg'
+
+
+# --- Attempts to connect to the server, if the devices fails it'll re-try every 60
+# --- seconds until a succesful connection is made.
+def connectToServer(host, port):
+    sent = False
+    for i in range(10):
+        try:
+            global s
+            s = socket.socket() # create the client socket
+            s.connect((host, port))
+            logger.info(f"[+] Connecting to {host}:{port}")
+            sent = True
+            break
+        except:
+            logger.info('Cannot connect to server. Retrying...')
+            time.sleep(5)
+    logger.info('Failed to connect to server.')
+    return sent
+
 
 def sendFile(filename, device):
 
-    print(CURRENT_DIRECTORY = os.path.join(os.path.dirname(__file__)))
+    sent = connectToServer(HOST, PORT)
 
-    SEPARATOR = "<SEPARATOR>"
-    BUFFER_SIZE = 4096 # send 4096 bytes each time step
-
-    host = "192.168.1.236" # the ip address or hostname of the server, the receiver
-    port = 5001 # the port, let's use 5001
-
-    if True: 
-       # try:
-            s = socket.socket() # create the client socket
-            print(f"[+] Connecting to {host}:{port}")
-
-            s.connect((host, port))
-            print("[+] Connected.")
-
-    #filename = "rpi-urban-mobility-tracker/detections.ssg" # the name of file we want to send, make sure it exists
-    #filesize = os.path.getsize(filename) # get the file size
     filesize = sys.getsizeof(filename) # get the file size
 
 
@@ -56,3 +72,6 @@ def sendFile(filename, device):
             progress.update(len(bytes_read))
     # close the socket
     s.close()
+    return sent
+
+

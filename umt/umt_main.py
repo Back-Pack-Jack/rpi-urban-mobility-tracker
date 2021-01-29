@@ -107,6 +107,7 @@ def main():
             header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age,'
                 'obj_t_since_last_update, obj_hits,'
                 'xmin, ymin, xmax, ymax')
+
             tracked_list.append(header)
 
         # get detections

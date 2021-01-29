@@ -1,4 +1,3 @@
-frame_num, rpi_time, obj_class, obj_id, obj_age,obj_t_since_last_update, obj_hits,xmin, ymin, xmax, ymax
 136,1611855705,person,1,1,0,1,417,306,449,393
 137,1611855707,person,1,2,0,2,417,306,449,393
 138,1611855707,bicycle,2,1,0,1,326,286,380,401

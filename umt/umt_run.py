@@ -15,7 +15,7 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location
 logger.info('Initializing Device')
-initialize_picture()
+#initialize_picture()
 logger.info('Initializing Picture')
 initialize_zones()
 logger.info('Initializing Zones')
@@ -29,10 +29,8 @@ def signal_handler(sig, frame): # Capture Control+C and disconnect from Broker.
     p3.send_signal(signal.SIGINT)
 
 signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
-
+'''
 p1 = subprocess.Popen(['python', 'umt_main.py'])
 p2 = subprocess.Popen(['python', 'umt_counter.py'])
 p3 = subprocess.Popen(['python', 'mqtt.py'])
-
-
-
+'''

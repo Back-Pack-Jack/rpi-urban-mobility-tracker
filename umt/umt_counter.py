@@ -14,36 +14,48 @@ import pickle
 import schedule
 import time
 import logging
+from sys import platform
+import os
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("umt - umt_counter")  # Logger for this module
+logger = logging.getLogger("UMT - Counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
-with open('uuid.ssg', 'rb') as f:
+# --- Sets platform directories --------------------------------
+if platform == 'linux' or platform == 'linux2':
+    UUID = 'uuid.ssg'
+    IMG_PATH = 'image_capture.png'
+    CSV_PATH = 'object_paths.csv' 
+    DETECTIONS = 'detections.ssg'
+    GATES = 'gates.ssg'
+if platform == 'darwin':
+    UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
+    IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
+    CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths.csv' 
+    DETECTIONS = 'rpi-urban-mobility-tracker/umt/detections.ssg'
+    GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
+
+
+with open(UUID, 'rb') as f:
             UUID = pickle.load(f)
             logger.info("Loaded UUID")
 
 # --- Initialises the MQTT client to send a message to the server
-
-IMG_PATH = 'image_capture.png'
-CSV_PATH = 'object_paths.csv' 
 DEVICE = UUID
 
 gates = []
 detections = []
 
 # load object paths
-df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'id', 'bb_left', 'bb_top', 'bb_width', 'bb_height', 'class','score'])
+df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
 df.shape
-
-#df.sample(5)
 
 #  compute detection centroids
 df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
 df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
 
 try:
-        with open('gates.ssg', 'rb') as f: 
+        with open(GATES, 'rb') as f: 
             gates = pickle.load(f)
 except:
     logger.info('Gate load error')
@@ -85,11 +97,36 @@ def crossed_gates():
                         
 # --- Pickle the detection list to a byte file --------
 def count():
+    
+    #--- Runs the algorithm to determine whether anybody has crossed the gates
     crossed_gates()
-    transfer_file = pickle.dumps(detections)
-    filename = "detections.ssg"
-    client_sock.sendFile(filename, DEVICE)
-    logger.info("Transfer of detection information to server complete!")
+
+    #--- Looks for Outstanding detection files, if a file exists it's opened and
+    #--- any new detections are appended to the end and the file saved.
+    try:
+        with open(DETECTIONS, 'rb') as f:
+            previous_detections = pickle.load(f)
+            detections.insert(len(detections), previous_detections)
+            logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
+            with open(DETECTIONS, 'wb') as f:
+                pickle.dump(detections, f)
+    except FileNotFoundError:
+        logger.info('No Outstanding Detections Found. Dumping detections to file.')
+        with open(DETECTIONS, 'wb') as f:
+            pickle.dump(detections, f)
+
+    #--- The client attempts to transfer the file to the server returning a true
+    #--- or false dependant upon the success of a server connection.
+    sent = client_sock.sendFile(DETECTIONS, DEVICE)
+
+    #--- If the file has been sent the existing detection file is deleted and if
+    #--- not the file is retained to be appended to next time the counter runs.
+    if not sent:
+        logger.info('Unable to send File, will retry after detections are calculated')
+        return
+    else:
+        os.remove(DETECTIONS)
+        logger.info('File Sent to Server')
 
 def main():
     schedule.every(15).minutes.do(count)
