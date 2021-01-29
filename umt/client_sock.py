@@ -2,19 +2,34 @@ import socket
 import tqdm
 import os
 import sys
+import pickle
+import logging
+
+DETECTIONS = 'detections.ssg' 
+DETECTION_DIR = os.path.join(os.path.dirname(__file__), DETECTIONS)
+print(DETECTION_DIR)
+
+with open(DETECTIONS, 'rb') as f:
+    detections = pickle.load(f)
+    #logger.info("Loaded Detections")
 
 def sendFile(filename, device):
+
+    print(CURRENT_DIRECTORY = os.path.join(os.path.dirname(__file__)))
+
     SEPARATOR = "<SEPARATOR>"
     BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
     host = "192.168.1.236" # the ip address or hostname of the server, the receiver
     port = 5001 # the port, let's use 5001
 
-    s = socket.socket() # create the client socket
-    print(f"[+] Connecting to {host}:{port}")
+    if True: 
+       # try:
+            s = socket.socket() # create the client socket
+            print(f"[+] Connecting to {host}:{port}")
 
-    s.connect((host, port))
-    print("[+] Connected.")
+            s.connect((host, port))
+            print("[+] Connected.")
 
     #filename = "rpi-urban-mobility-tracker/detections.ssg" # the name of file we want to send, make sure it exists
     #filesize = os.path.getsize(filename) # get the file size
