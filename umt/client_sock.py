@@ -30,7 +30,7 @@ if platform == 'darwin':
 # --- seconds until a succesful connection is made.
 def connectToServer(host, port):
     sent = False
-    for i in range(10):
+    for i in range(3):
         try:
             global s
             s = socket.socket() # create the client socket
@@ -48,6 +48,9 @@ def connectToServer(host, port):
 def sendFile(filename, device):
 
     sent = connectToServer(HOST, PORT)
+
+    if not sent:
+        return sent
 
     filesize = sys.getsizeof(filename) # get the file size
 

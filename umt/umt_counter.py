@@ -94,15 +94,13 @@ def crossed_gates():
                         timecat.insert(0, g)
                         timecat.insert(0, DEVICE)
                         detections.insert(0, timecat)
-                        
-# --- Pickle the detection list to a byte file --------
-def count():
-    
-    #--- Runs the algorithm to determine whether anybody has crossed the gates
-    crossed_gates()
 
-    #--- Looks for Outstanding detection files, if a file exists it's opened and
-    #--- any new detections are appended to the end and the file saved.
+
+#--- Looks for Outstanding detection files, if a file exists it's opened and
+#--- any new detections are appended to the end and the file saved.
+#--- The client attempts to transfer the file to the server returning a true
+#--- or false dependant upon the success of a server connection.
+def sendFile():
     try:
         with open(DETECTIONS, 'rb') as f:
             previous_detections = pickle.load(f)
@@ -110,15 +108,23 @@ def count():
             logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
             with open(DETECTIONS, 'wb') as f:
                 pickle.dump(detections, f)
+            sent = client_sock.sendFile(DETECTIONS, DEVICE)
+            return sent
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
         with open(DETECTIONS, 'wb') as f:
             pickle.dump(detections, f)
-
-    #--- The client attempts to transfer the file to the server returning a true
-    #--- or false dependant upon the success of a server connection.
-    sent = client_sock.sendFile(DETECTIONS, DEVICE)
-
+        sent = client_sock.sendFile(DETECTIONS, DEVICE)
+        return sent
+    
+                        
+# --- Pickle the detection list to a byte file --------
+def count():
+    
+    #--- Runs the algorithm to determine whether anybody has crossed the gates
+    crossed_gates()
+    sent = sendFile()
+    
     #--- If the file has been sent the existing detection file is deleted and if
     #--- not the file is retained to be appended to next time the counter runs.
     if not sent:
