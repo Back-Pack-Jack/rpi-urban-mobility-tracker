@@ -25,9 +25,9 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 if platform == 'linux' or platform == 'linux2':
     UUID = 'umt/uuid.ssg'
     IMG_PATH = 'umt/image_capture.png'
-    CSV_PATH = 'umt/object_paths.csv' 
-    DETECTIONS = 'umt/detections.ssg'
-    GATES = 'umt/gates.ssg'
+    CSV_PATH = 'object_paths.csv' 
+    DETECTIONS = 'detections.ssg'
+    GATES = 'gates.ssg'
 if platform == 'darwin':
     UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
     IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
@@ -48,7 +48,7 @@ detections = []
 
 # load object paths
 df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
-df.shape
+df.shape                                        
 
 #  compute detection centroids
 df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
@@ -103,9 +103,12 @@ def crossed_gates():
 def sendFile():
     try:
         with open(DETECTIONS, 'rb') as f:
+            print('f', f)
             previous_detections = pickle.load(f)
+            print('previous:', previous_detections)
             detections.insert(len(detections), previous_detections)
             logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
+            print(detections)
             with open(DETECTIONS, 'wb') as f:
                 pickle.dump(detections, f)
             sent = client_sock.sendFile(DETECTIONS, DEVICE)
@@ -135,7 +138,9 @@ def count():
         logger.info('File Sent to Server')
 
 def main():
-    schedule.every(15).minutes.do(count)
+    #schedule.every(15).minutes.do(count)
+    #count()
+    sendFile()
 
     while 1:
         schedule.run_pending()

@@ -44,6 +44,7 @@ tracked_list = []
 
 def signal_handler(sig, frame):
     print('You pressed ctrl + c')
+    print(tracked_list)
     with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
         for x in tracked_list:
             print(x, file=out_file)
@@ -108,13 +109,14 @@ def main():
         print('> FRAME:', i)
         
         # add header to trajectory file
+        '''
         if i == 0:
             header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age,'
                 'obj_t_since_last_update, obj_hits,'
                 'xmin, ymin, xmax, ymax')
 
             tracked_list.append(header)
-
+        '''
         # get detections
         detections = generate_detections(pil_img, interpreter, args.threshold)
         
