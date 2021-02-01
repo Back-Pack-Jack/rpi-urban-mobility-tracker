@@ -103,11 +103,10 @@ def crossed_gates():
 def sendFile():
     try:
         with open(DETECTIONS, 'rb') as f:
-            print('f', f)
-            previous_detections = pickle.load(f)
-            print('previous:', previous_detections)
-            detections.insert(len(detections), previous_detections)
             logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
+            previous_detections = pickle.load(f)
+            for previous_detection in previous_detections:
+                detections.insert(len(detections), previous_detection)
             print(detections)
             with open(DETECTIONS, 'wb') as f:
                 pickle.dump(detections, f)
