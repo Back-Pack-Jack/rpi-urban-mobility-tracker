@@ -23,7 +23,7 @@ w_path = os.path.join(os.path.dirname(__file__), 'deep_sort/mars-small128.pb')
 encoder = gd.create_box_encoder(w_path, batch_size=1)
     
 
-def camera_frame_gen(args):
+def camera_frame_gen():
 
     # initialize the video stream and allow the camera sensor to warmup
     print("> starting video stream...")
@@ -42,36 +42,7 @@ def camera_frame_gen(args):
     pass
 
 
-def image_seq_gen(args):
-
-    # collect images to be processed
-    images = []
-    for item in sorted(os.listdir(args.image_path)):
-        if item[-4:] == '.jpg': images.append(f'{args.image_path}{item}')
-    
-    # cycle through image sequence and yield a PIL img object
-    for frame in range(0, args.nframes): yield Image.open(images[frame])
-
-
-def video_frame_gen(args):
-    
-    counter = 0
-    cap = cv2.VideoCapture(args.video_path)
-    while(cap.isOpened()):
-        counter += 1
-        if counter > args.nframes: break
-        if cv2.waitKey(1) & 0xFF == ord('q'): break
-
-        # pull frame from video stream
-        _, frame = cap.read()
-
-        # array to PIL image format
-        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        yield Image.fromarray(frame)
-
-
-def initialize_img_source(args):
+def initialize_img_source():
         
     # track objects from camera source
     return camera_frame_gen

@@ -58,18 +58,6 @@ def main():
     global tracked_list
     threshold = 0.2
 
-    # parse arguments
-    parser = argparse.ArgumentParser(description='--- Raspbery Pi Urban Mobility Tracker ---')
-    parser.add_argument('-modelpath', dest='model_path', type=str, required=False, help='specify path of a custom detection model')
-  
-   # parser.add_argument('-tpu', dest='tpu', required=False, default=True, action='store_true', help='add this when using a coral usb accelerator')
-    args = parser.parse_args()
-    
-    # basic checks
-    if args.model_path: assert os.path.exists(args.model_path)==True, "can't find the specified model..."
-
-
-
     print('> INITIALIZING UMT...')
     print('   > THRESHOLD:',threshold)
 
@@ -84,14 +72,14 @@ def main():
     tracker = Tracker(metric) 
 
     # initialize image source
-    img_generator = initialize_img_source(args)
+    img_generator = initialize_img_source()
 
 
     # main tracking loop
     print('\n> TRACKING...')
     #with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
 
-    for i, pil_img in enumerate(img_generator(args)):
+    for i, pil_img in enumerate(img_generator()):
     
         f_time = int(time.time())
         print('> FRAME:', i)
