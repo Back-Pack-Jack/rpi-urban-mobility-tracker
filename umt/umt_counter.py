@@ -23,17 +23,18 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
 if platform == 'linux' or platform == 'linux2':
-    UUID = 'umt/uuid.ssg'
-    IMG_PATH = 'umt/image_capture.png'
+    UUID = 'uuid.ssg'
+    IMG_PATH = 'image_capture.png'
     CSV_PATH = 'object_paths.csv' 
     DETECTIONS = 'detections.ssg'
-    GATES = 'gates.ssg'
+    GATES = 'umt/gates.ssg'
 if platform == 'darwin':
     UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
     IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
     CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths.csv' 
     DETECTIONS = 'rpi-urban-mobility-tracker/umt/detections.ssg'
     GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
+
 
 
 with open(UUID, 'rb') as f:
@@ -135,6 +136,12 @@ def count():
     else:
         os.remove(DETECTIONS)
         logger.info('File Sent to Server')
+
+def passedData(data):
+    b = a
+    a = data
+
+
 
 def main():
     #schedule.every(15).minutes.do(count)

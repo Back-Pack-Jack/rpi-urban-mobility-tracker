@@ -72,60 +72,25 @@ def video_frame_gen(args):
 
 
 def initialize_img_source(args):
-
-    # track objects from video file
-    if args.video_path: return video_frame_gen
-    
-    # track objects in image sequence
-    if args.image_path: return image_seq_gen
         
     # track objects from camera source
-    if args.camera: return camera_frame_gen
+    return camera_frame_gen
 
 
-def initialize_detector(args):
-
-    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite' #'models/pednet/model/ped_tpu.tflite' 
-    CPU_PATH = 'models/pednet/model/pednet.tflite'
-
-    # initialize coral tpu model
-    if args.tpu:
-        print('   > TPU = TRUE')
+def initialize_detector():
+                
+    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite' # models/pednet/model/ped_tpu.tflite' 
+    model_path = os.path.join(os.path.dirname(__file__), TPU_PATH)
         
-        if args.model_path:
-            model_path = args.model_path
-            print('   > CUSTOM DETECTOR = TRUE')
-            print(f'      > DETECTOR PATH = {model_path}')
-        	
-        else:
-        	model_path = os.path.join(os.path.dirname(__file__), TPU_PATH)
-        	print('   > CUSTOM DETECTOR = FALSE')
-        
-        _, *device = model_path.split('@')
-        edgetpu_shared_lib = 'libedgetpu.so.1'
-        interpreter = tflite.Interpreter(
-                model_path,
-                experimental_delegates=[
-                    tflite.load_delegate(edgetpu_shared_lib,
-                        {'device': device[0]} if device else {})
-                ])
-        interpreter.allocate_tensors()
-
-    # initialize tflite model
-    else:
-        print('   > TPU = FALSE')
-        
-        if args.model_path:
-            model_path = args.model_path
-            print('   > CUSTOM DETECTOR = TRUE')
-            print(f'      > DETECTOR PATH = {model_path}')
-        	
-        else:
-        	print('   > CUSTOM DETECTOR = FALSE')
-        	model_path = os.path.join(os.path.dirname(__file__), CPU_PATH)
-        
-        interpreter = tflite.Interpreter(model_path=model_path)
-        interpreter.allocate_tensors()
+    _, *device = model_path.split('@')
+    edgetpu_shared_lib = 'libedgetpu.so.1'
+    interpreter = tflite.Interpreter(
+            model_path,
+            experimental_delegates=[
+                tflite.load_delegate(edgetpu_shared_lib,
+                    {'device': device[0]} if device else {})
+            ])
+    interpreter.allocate_tensors()
 
     return interpreter
 
@@ -192,11 +157,8 @@ def generate_detections(pil_img_obj, interpreter, threshold):
     return detections
 
 
-def parse_label_map(args, DEFAULT_LABEL_MAP_PATH):
-    if args.label_map_path == DEFAULT_LABEL_MAP_PATH: print('   > CUSTOM LABEL MAP = FALSE')
-    else: print(f'   > CUSTOM LABEL MAP = TRUE ({args.label_map_path})')
-
+def parse_label_map(DEFAULT_LABEL_MAP_PATH):
     labels = {}
-    for i, row in enumerate(open(args.label_map_path)):
+    for i, row in enumerate(open(DEFAULT_LABEL_MAP_PATH)):
         labels[i] = row.replace('\n','')
     return labels
