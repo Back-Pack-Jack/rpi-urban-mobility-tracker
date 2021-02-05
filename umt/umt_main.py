@@ -22,7 +22,7 @@ from umt_utils import initialize_img_source
 from umt_utils import generate_detections
 
 if sys.platform == 'linux' or platform == 'linux2':
-    TRACKER_OUTPUT_TEXT_FILE = 'umt/object_paths.csv'
+    TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
 if sys.platform == 'darwin':
     TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
 
@@ -37,7 +37,6 @@ NN_BUDGET = None
 NMS_MAX_OVERLAP = 1.0
 
 #--- FILES --------------------------------------------------------------------+
-global tracked_list
 tracked_list = []
 
 #--- MAIN ---------------------------------------------------------------------+
@@ -89,11 +88,11 @@ def main():
         detections = generate_detections(pil_img, interpreter, threshold)
         
         # Saves tracked to file every x frames
-        if len(tracked_list) == 100:
+        if len(tracked_list) >= 500:
             with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
                 for x in tracked_list:
                     print(x, file=out_file)
-            print (tracked_list)
+            print('dumped tracked to list')
             tracked_list = []
 
         # proceed to updating state

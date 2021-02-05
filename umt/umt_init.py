@@ -21,9 +21,9 @@ class UMTinit:
 
     def __init__(self):
         if platform == 'linux' or platform == 'linux2':
-            self.DEV_UUID = 'umt/uuid.ssg'
-            self.IMG_PATH = 'umt/image_capture.png'
-            self.GATES = 'umt/gates.ssg'
+            self.DEV_UUID = 'uuid.ssg'
+            self.IMG_PATH = 'image_capture.png'
+            self.GATES = 'gates.ssg'
         if platform == 'darwin':
             self.DEV_UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
             self.IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'

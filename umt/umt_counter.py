@@ -25,11 +25,11 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
 if platform == 'linux' or platform == 'linux2':
-    UUID = 'umt/uuid.ssg'
-    IMG_PATH = 'umt/image_capture.png'
-    CSV_PATH = 'umt/object_paths.csv' 
-    DETECTIONS = 'umt/detections.ssg'
-    GATES = 'umt/gates.ssg'
+    UUID = 'uuid.ssg'
+    IMG_PATH = 'image_capture.png'
+    CSV_PATH = 'object_paths.csv' 
+    DETECTIONS = 'detections.csv'
+    GATES = 'gates.ssg'
 if platform == 'darwin':
     UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
     IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
@@ -109,6 +109,7 @@ def crossed_gates():
                         timecat.insert(0, g)
                         timecat.insert(0, DEVICE)
                         detections.insert(0, timecat)
+                        print(detections)
 
 
 #--- Looks for Outstanding detection files, if a file exists it's opened and

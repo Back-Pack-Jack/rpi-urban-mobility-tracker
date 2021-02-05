@@ -10,9 +10,9 @@ logger = logging.getLogger("umt - run")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 if platform == 'linux' or platform == 'linux2':
-    MAIN = 'umt/umt_main.py'
-    COUNTER = 'umt/umt_counter.py'
-    MQTT = 'umt/mqtt.py'
+    MAIN = 'umt_main.py'
+    COUNTER = 'umt_counter.py'
+    MQTT = 'mqtt.py'
 if platform == 'darwin':
     MAIN = 'umt_main.py'
     COUNTER = 'umt_counter.py'
