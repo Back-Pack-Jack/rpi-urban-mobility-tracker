@@ -30,7 +30,6 @@ if sys.platform == 'darwin':
 
 LABEL_PATH = "models/pednet/model/labels.txt"
 DEFAULT_LABEL_MAP_PATH = os.path.join(os.path.dirname(__file__), LABEL_PATH)
-TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
 
 # deep sort related
 MAX_COSINE_DIST = 0.4
