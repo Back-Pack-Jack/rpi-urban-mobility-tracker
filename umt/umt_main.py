@@ -83,19 +83,20 @@ def main():
     
         f_time = int(time.time())
         print('> FRAME:', i)
-        
-        # add header to trajectory file
-        '''
-        if i == 0:
-            header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age,'
-                'obj_t_since_last_update, obj_hits,'
-                'xmin, ymin, xmax, ymax')
 
-            tracked_list.append(header)
-        '''
+        # header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age, obj_t_since_last_update, obj_hits, xmin, ymin, xmax, ymax')
+
         # get detections
         detections = generate_detections(pil_img, interpreter, threshold)
         
+        # Saves tracked to file every x frames
+        if len(tracked_list) == 100:
+            with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
+                for x in tracked_list:
+                    print(x, file=out_file)
+            print (tracked_list)
+            tracked_list = []
+
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
         else:
@@ -115,9 +116,6 @@ def main():
                         f'{int(bbox[0])},{int(bbox[1])},'
                         f'{int(bbox[2])},{int(bbox[3])}')
                     tracked_list.append(row)
-            
-        if int(time.strftime("%M")) == 29 | int(time.strftime("%M")) == 0:
-            print("send data")
             
     cv2.destroyAllWindows()         
     pass

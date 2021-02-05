@@ -16,6 +16,8 @@ import time
 import logging
 from sys import platform
 import os
+import os.path
+from os import path
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("UMT - Counter")  # Logger for this module
@@ -23,10 +25,10 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
 if platform == 'linux' or platform == 'linux2':
-    UUID = 'uuid.ssg'
-    IMG_PATH = 'image_capture.png'
-    CSV_PATH = 'object_paths.csv' 
-    DETECTIONS = 'detections.ssg'
+    UUID = 'umt/uuid.ssg'
+    IMG_PATH = 'umt/image_capture.png'
+    CSV_PATH = 'umt/object_paths.csv' 
+    DETECTIONS = 'umt/detections.ssg'
     GATES = 'umt/gates.ssg'
 if platform == 'darwin':
     UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
@@ -47,13 +49,21 @@ DEVICE = UUID
 gates = []
 detections = []
 
-# load object paths
-df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
-df.shape                                        
+# --- Looks for 'object_paths.csv' and loads them into 'df' returning 'True' if the path
+# --- exists and 'False' if not.
+def readObjPaths():
+    global df
+    if(path.exists(CSV_PATH)):
+        logger.info('Loading CSV paths into pandas')
+        df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
+        df.shape
+        return True
+    else:
+        logger.exception('No CSV path file to send')
+        return False
 
-#  compute detection centroids
-df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
-df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
+
+
 
 try:
         with open(GATES, 'rb') as f: 
@@ -73,6 +83,10 @@ def cross(s1, s2):
 
 # now lets cycle throught each objects trajectory and determine if it has crossed either of the gates
 def crossed_gates():
+    #  compute detection centroids
+    df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
+    df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
+
     for n, obj_path in df.groupby(by='id'):
         
         # cycle through each time step of trajectory in ascending order
@@ -124,29 +138,26 @@ def sendFile():
 # --- Pickle the detection list to a byte file --------
 def count():
     
-    #--- Runs the algorithm to determine whether anybody has crossed the gates
-    crossed_gates()
-    sent = sendFile()
+    readyTosend = readObjPaths()
     
-    #--- If the file has been sent the existing detection file is deleted and if
-    #--- not the file is retained to be appended to next time the counter runs.
-    if not sent:
-        logger.info('Unable to send File, will retry after detections are calculated')
-        return
+    if readyTosend:
+        crossed_gates() # Runs the algorithm to determine whether anybody has crossed the gates
+        sent = sendFile()
+        #--- If the file has been sent the existing detection file is deleted and if
+        #--- not the file is retained to be appended to next time the counter runs.
+        if not sent:
+            logger.info('Unable to send File, will retry after detections are calculated')
+            return
+        else:
+            os.remove(DETECTIONS)
+            os.remove(CSV_PATH)
+            logger.info('File Sent to Server')
     else:
-        os.remove(DETECTIONS)
-        logger.info('File Sent to Server')
-
-def passedData(data):
-    b = a
-    a = data
-
+        logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
 
 
 def main():
-    #schedule.every(15).minutes.do(count)
-    #count()
-    sendFile()
+    schedule.every(1).minute.do(count)
 
     while 1:
         schedule.run_pending()
