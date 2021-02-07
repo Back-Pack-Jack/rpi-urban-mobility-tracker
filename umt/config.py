@@ -1,4 +1,5 @@
 import os
+import pickle
 
 HOST = "192.168.0.13"
 
@@ -18,7 +19,7 @@ class SOCKET:
 class MQTT:
     HOST = HOST
     PORT = 1883
-    CLIENT_ID = 1#<UUID HERE>
     TOPIC = [("cycle/live", 2)]
-
-
+    with open(PATHS.UUID, 'rb') as f:
+        CLIENT_ID = pickle.load(f)
+    

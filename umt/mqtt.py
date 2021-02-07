@@ -11,7 +11,8 @@ import paho.mqtt.client as mqtt
 import paho.mqtt.publish as publish
 import threading
 import hashlib
-from config import MQTT
+from config import MQTT as MQT
+from config import PATHS
 
 # Initialize Logging
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
@@ -19,10 +20,10 @@ logger = logging.getLogger("mqtt.MQTT_Client")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
     
 # Global Variables
-BROKER_HOST = MQTT.HOST
-BROKER_PORT = MQTT.PORT
-CLIENT_ID = MQTT.CLIENT_ID
-TOPIC = MQTT.TOPIC
+BROKER_HOST = MQT.HOST
+BROKER_PORT = MQT.PORT
+CLIENT_ID = MQT.CLIENT_ID
+TOPIC = MQT.TOPIC
 DATA_BLOCK_SIZE = 2000
 
 process = None
