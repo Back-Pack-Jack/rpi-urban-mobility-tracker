@@ -7,23 +7,18 @@ import logging
 from sys import platform
 import time
 import logging
-
+from config import SOCKET, PATHS
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("UMT - Client Socket")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Server Network Information
-HOST = "192.168.1.236" # the ip address or hostname of the server, the receiver
-PORT = 5001 # the port, let's use 5001
+HOST = SOCKET.HOST 
+PORT = SOCKET.PORT 
+DETECTIONS = PATHS.DETECTIONS
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096 # send 4096 bytes each time step
-
-# --- Changing directory URL depending on the platform 
-if platform == 'linux' or platform == 'linux2':
-    DETECTIONS = 'detections.ssg' 
-if platform == 'darwin':
-    DETECTIONS = 'rpi-urban-mobility-tracker/umt/boundries.ssg'
 
 
 # --- Attempts to connect to the server, if the devices fails it'll re-try every 60

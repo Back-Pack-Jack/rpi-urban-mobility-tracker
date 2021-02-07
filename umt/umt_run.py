@@ -2,6 +2,7 @@ import multiprocessing
 import subprocess
 import logging
 import signal
+import os
 from sys import platform
 from umt_init import UMTinit
 
@@ -9,14 +10,11 @@ logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("umt - run")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
-if platform == 'linux' or platform == 'linux2':
-    MAIN = 'umt_main.py'
-    COUNTER = 'umt_counter.py'
-    MQTT = 'mqtt.py'
-if platform == 'darwin':
-    MAIN = 'umt_main.py'
-    COUNTER = 'umt_counter.py'
-    MQTT = 'mqtt.py'
+
+MAIN = os.path.join(os.path.dirname(__file__),'umt_main.py')
+COUNTER = os.path.join(os.path.dirname(__file__),'umt_counter.py')
+MQTT = os.path.join(os.path.dirname(__file__),'mqtt.py')
+
 
 init = UMTinit()
 init.initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location

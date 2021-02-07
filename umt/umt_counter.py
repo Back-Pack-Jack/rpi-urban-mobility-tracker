@@ -18,26 +18,19 @@ from sys import platform
 import os
 import os.path
 from os import path
+from config import PATHS
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("UMT - Counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
-if platform == 'linux' or platform == 'linux2':
-    UUID = 'uuid.ssg'
-    IMG_PATH = 'image_capture.png'
-    CSV_PATH = 'object_paths.csv' 
-    DETECTIONS = 'detections.csv'
-    GATES = 'gates.ssg'
-if platform == 'darwin':
-    UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
-    IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
-    CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths.csv' 
-    DETECTIONS = 'rpi-urban-mobility-tracker/umt/detections.ssg'
-    GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
 
-
+UUID = PATHS.UUID
+IMG_PATH = PATHS.IMG_PATH
+CSV_PATH = PATHS.CSV_PATH
+DETECTIONS = PATHS.DETECTIONS
+GATES = PATHS.GATES
 
 with open(UUID, 'rb') as f:
             UUID = pickle.load(f)
@@ -158,8 +151,8 @@ def count():
 
 
 def main():
-    schedule.every(1).minute.do(count)
-
+    #schedule.every(1).minute.do(count)
+    count()
     while 1:
         schedule.run_pending()
         time.sleep(1)

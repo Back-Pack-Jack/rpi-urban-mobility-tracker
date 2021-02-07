@@ -21,10 +21,12 @@ from umt_utils import initialize_detector
 from umt_utils import initialize_img_source
 from umt_utils import generate_detections
 
-if sys.platform == 'linux' or platform == 'linux2':
-    TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
-if sys.platform == 'darwin':
-    TRACKER_OUTPUT_TEXT_FILE = 'object_paths.csv'
+#config
+from config import PATHS
+
+
+TRACKER_OUTPUT_TEXT_FILE = PATHS.CSV_PATH
+
 
 #--- CONSTANTS ----------------------------------------------------------------+
 

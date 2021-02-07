@@ -12,6 +12,7 @@ from tkinter import Tk, Canvas, mainloop, PhotoImage, Label
 from PIL import ImageTk, Image 
 import pickle
 from sys import platform
+from config import PATHS
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("init - umt_init")  # Logger for this module
@@ -20,14 +21,9 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 class UMTinit:
 
     def __init__(self):
-        if platform == 'linux' or platform == 'linux2':
-            self.DEV_UUID = 'uuid.ssg'
-            self.IMG_PATH = 'image_capture.png'
-            self.GATES = 'gates.ssg'
-        if platform == 'darwin':
-            self.DEV_UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
-            self.IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
-            self.GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
+        self.DEV_UUID = PATHS.UUID
+        self.IMG_PATH = PATHS.IMG_PATH
+        self.GATES = PATHS.GATES
         self.gates = []
 
     # Device looks to find it's UUID no. if it doesn't exist it generates one, communicates it to the server and saves it to 'uuid.ssg'
