@@ -11,6 +11,11 @@ class PATHS:
     GATES = os.path.join(os.path.dirname(__file__),'resources/gates.ssg')
 
 
+class DEVICE:
+    with open(PATHS.UUID, 'rb') as f:
+        UUID = pickle.load(f)
+
+
 class SOCKET:
     HOST = HOST
     PORT = 5001
@@ -20,6 +25,5 @@ class MQTT:
     HOST = HOST
     PORT = 1883
     TOPIC = [("cycle/live", 2)]
-    with open(PATHS.UUID, 'rb') as f:
-        CLIENT_ID = pickle.load(f)
-    
+    CLIENT_ID = DEVICE.UUID
+

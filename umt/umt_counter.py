@@ -18,26 +18,14 @@ from sys import platform
 import os
 import os.path
 from os import path
-from config import PATHS
+from config import PATHS, DEVICE
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("UMT - Counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
-
-UUID = PATHS.UUID
 IMG_PATH = PATHS.IMG_PATH
-CSV_PATH = PATHS.CSV_PATH
-DETECTIONS = PATHS.DETECTIONS
-GATES = PATHS.GATES
-
-with open(UUID, 'rb') as f:
-            UUID = pickle.load(f)
-            logger.info("Loaded UUID")
-
-# --- Initialises the MQTT client to send a message to the server
-DEVICE = UUID
 
 gates = []
 detections = []
@@ -46,9 +34,9 @@ detections = []
 # --- exists and 'False' if not.
 def readObjPaths():
     global df
-    if(path.exists(CSV_PATH)):
+    if(path.exists(PATHS.CSV_PATH)):
         logger.info('Loading CSV paths into pandas')
-        df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
+        df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
         df.shape
         return True
     else:
@@ -59,7 +47,7 @@ def readObjPaths():
 
 
 try:
-        with open(GATES, 'rb') as f: 
+        with open(PATHS.GATES, 'rb') as f: 
             gates = pickle.load(f)
 except:
     logger.info('Gate load error')
@@ -100,7 +88,7 @@ def crossed_gates():
                 for g, gate in enumerate(gates):
                     if cross(gates[g], [xy_t0, xy_t1]):
                         timecat.insert(0, g)
-                        timecat.insert(0, DEVICE)
+                        timecat.insert(0, DEVICE.UUID)
                         detections.insert(0, timecat)
                         print(detections)
 
@@ -111,21 +99,21 @@ def crossed_gates():
 #--- or false dependant upon the success of a server connection.
 def sendFile():
     try:
-        with open(DETECTIONS, 'rb') as f:
+        with open(PATHS.DETECTIONS, 'rb') as f:
             logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
             previous_detections = pickle.load(f)
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
             print(detections)
-            with open(DETECTIONS, 'wb') as f:
+            with open(PATHS.DETECTIONS, 'wb') as f:
                 pickle.dump(detections, f)
-            sent = client_sock.sendFile(DETECTIONS, DEVICE)
+            sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
             return sent
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
-        with open(DETECTIONS, 'wb') as f:
+        with open(PATHS.DETECTIONS, 'wb') as f:
             pickle.dump(detections, f)
-        sent = client_sock.sendFile(DETECTIONS, DEVICE)
+        sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
         return sent
     
                         
@@ -143,8 +131,8 @@ def count():
             logger.info('Unable to send File, will retry after detections are calculated')
             return
         else:
-            os.remove(DETECTIONS)
-            os.remove(CSV_PATH)
+            os.remove(PATHS.DETECTIONS)
+            os.remove(PATHS.CSV_PATH)
             logger.info('File Sent to Server')
     else:
         logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
