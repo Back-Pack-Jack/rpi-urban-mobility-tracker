@@ -25,7 +25,6 @@ logger = logging.getLogger("UMT - Counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
 # --- Sets platform directories --------------------------------
-IMG_PATH = PATHS.IMG_PATH
 
 gates = []
 detections = []
