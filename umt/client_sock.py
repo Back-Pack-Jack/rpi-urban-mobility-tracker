@@ -52,6 +52,7 @@ def sendFile(filename, device):
 
     # send the filename and filesize
     s.send(f"{device}{SEPARATOR}{filesize}".encode())
+    print(f"{device}{SEPARATOR}{filesize}".encode())
 
     # start sending the file
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
