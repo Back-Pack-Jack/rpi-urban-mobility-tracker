@@ -2,7 +2,7 @@ import uuid
 import pickle
 from mqtt import init_UUID
 import logging
-#from picamera import PiCamera
+from picamera import PiCamera
 from time import sleep
 import pandas as pd
 from PIL import Image

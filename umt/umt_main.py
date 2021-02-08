@@ -56,7 +56,7 @@ def main():
     #signal.signal(signal.SIGINT, signal_handler)
     #print('Running. Press Ctrl + C to exit.')
     global tracked_list
-    threshold = 0.2
+    threshold = 0.4
 
     print('> INITIALIZING UMT...')
     print('   > THRESHOLD:',threshold)
