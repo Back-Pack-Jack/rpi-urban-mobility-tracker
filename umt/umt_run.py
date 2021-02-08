@@ -8,7 +8,6 @@ from sys import platform
 from umt_init import UMTinit
 from umt_counter import main as countermain
 from mqtt import main as mqttmain
-from umt_main import main as umtmain
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("umt - run")  # Logger for this module
@@ -16,10 +15,6 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 
 
 MAIN = os.path.join(os.path.dirname(__file__),'umt_main.py')
-'''
-COUNTER = os.path.join(os.path.dirname(__file__),'umt_counter.py')
-MQTT = os.path.join(os.path.dirname(__file__),'mqtt.py')
-'''
 
 init = UMTinit()
 init.initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location
@@ -32,8 +27,8 @@ logger.info('Running all scripts')
 
 
 
-t1 = threading.Thread(target=umtmain).start()
+p1 = subprocess.Popen(['python', MAIN])
 
-t2 = threading.Thread(target=countermain).start()
+t1 = threading.Thread(target=countermain).start()
 
-t3 = threading.Thread(target=mqttmain).start()
+t2 = threading.Thread(target=mqttmain).start()
