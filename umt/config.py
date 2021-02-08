@@ -25,5 +25,4 @@ class MQTT:
     HOST = HOST
     PORT = 1883
     TOPIC = [("cycle/live", 2)]
-    CLIENT_ID = DEVICE.UUID
 
