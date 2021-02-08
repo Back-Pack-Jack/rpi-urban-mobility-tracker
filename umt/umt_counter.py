@@ -138,11 +138,14 @@ def count():
 
 
 def main():
+    count()
+    '''
     schedule.every(1).minute.do(count)
     
     while 1:
         schedule.run_pending()
         time.sleep(1)
+    '''
     
 
 if __name__ == '__main__':

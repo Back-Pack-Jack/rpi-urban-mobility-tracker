@@ -105,10 +105,12 @@ def init_mqtt():
     client.connect(BROKER_HOST, BROKER_PORT)
     client.loop_start()
 
-
-if __name__ == "__main__":
-    signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
+def main():
+   # signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
     logger.info("Listening for messages on topic '" + str(TOPIC) + "'. Press Control + C to exit.")
 
     init_mqtt()
     signal.pause()
+
+if __name__ == "__main__":
+    main()

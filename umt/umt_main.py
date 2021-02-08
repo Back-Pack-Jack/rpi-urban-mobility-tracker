@@ -53,8 +53,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
 
 def main():
-    signal.signal(signal.SIGINT, signal_handler)
-    print('Running. Press Ctrl + C to exit.')
+    #signal.signal(signal.SIGINT, signal_handler)
+    #print('Running. Press Ctrl + C to exit.')
     global tracked_list
     threshold = 0.2
 
