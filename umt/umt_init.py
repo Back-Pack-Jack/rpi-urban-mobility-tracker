@@ -12,7 +12,7 @@ from tkinter import Tk, Canvas, mainloop, PhotoImage, Label
 from PIL import ImageTk, Image 
 import pickle
 from sys import platform
-from config import PATHS
+from config import PATHS, DEVICE
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("init - umt_init")  # Logger for this module
@@ -35,6 +35,7 @@ class UMTinit:
         except FileNotFoundError:
             device = str(uuid.uuid4())
             init_UUID(device)
+            DEVICE.UUID = device
             with open(self.DEV_UUID, "wb") as f:
                 pickle.dump(device, f)
 

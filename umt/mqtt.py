@@ -22,7 +22,7 @@ logger.setLevel(logging.INFO) # Debugging for this file.
 # Global Variables
 BROKER_HOST = MQT.HOST
 BROKER_PORT = MQT.PORT
-#CLIENT_ID = MQT.CLIENT_ID
+CLIENT_ID = MQT.CLIENT_ID
 TOPIC = MQT.TOPIC
 DATA_BLOCK_SIZE = 2000
 

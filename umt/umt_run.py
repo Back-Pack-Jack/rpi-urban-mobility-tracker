@@ -32,7 +32,8 @@ def signal_handler(sig, frame): # Capture Control+C and disconnect from Broker.
     p3.send_signal(signal.SIGINT)
 
 signal.signal(signal.SIGINT, signal_handler)  # Capture Control + C
-
+'''
 p1 = subprocess.Popen(['python', MAIN])
 p2 = subprocess.Popen(['python', COUNTER])
 p3 = subprocess.Popen(['python', MQTT])
+'''

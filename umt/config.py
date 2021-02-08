@@ -1,7 +1,7 @@
 import os
 import pickle
 
-HOST = "192.168.1.236"
+HOST = "192.168.0.13"
 
 class PATHS:
     UUID = os.path.join(os.path.dirname(__file__),'resources/uuid.ssg')
@@ -12,8 +12,11 @@ class PATHS:
 
 
 class DEVICE:
-    with open(PATHS.UUID, 'rb') as f:
-        UUID = pickle.load(f)
+    try:
+        with open(PATHS.UUID, 'rb') as f:
+            UUID = pickle.load(f)
+    except:
+        UUID = None
 
 
 class SOCKET:
@@ -25,4 +28,5 @@ class MQTT:
     HOST = HOST
     PORT = 1883
     TOPIC = [("cycle/live", 2)]
+    CLIENT_ID = DEVICE.UUID
 
