@@ -7,8 +7,8 @@ import os
 from sys import platform
 from umt_init import UMTinit
 from umt_counter import main as countermain
-from mqtt import init_mqtt as mqttmain
-from umt_main.py import main as umtmain
+from mqtt import main as mqttmain
+from umt_main import main as umtmain
 
 logging.basicConfig(level=logging.WARNING)  # Global logging configuration
 logger = logging.getLogger("umt - run")  # Logger for this module
@@ -32,8 +32,8 @@ logger.info('Running all scripts')
 
 
 
-t3 = threading.Thread(target=umtmain).start()
+t1 = threading.Thread(target=umtmain).start()
 
-t1 = threading.Thread(target=countermain).start()
+t2 = threading.Thread(target=countermain).start()
 
-t2 = threading.Thread(target=mqttmain).start()
+t3 = threading.Thread(target=mqttmain).start()
