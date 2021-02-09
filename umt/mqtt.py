@@ -102,7 +102,14 @@ def init_mqtt():
     client.on_publish = on_publish
     
     # Connect to Broker.
-    client.connect(BROKER_HOST, BROKER_PORT)
+    while True:
+        try:
+            client.connect(BROKER_HOST, BROKER_PORT)
+            break
+        except:
+            logger.exception("Couldn't connect to broker. Retrying...")
+            time.sleep(5)
+            
     client.loop_start()
 
 def main():
