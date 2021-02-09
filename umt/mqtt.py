@@ -117,7 +117,7 @@ def main():
     logger.info("Listening for messages on topic '" + str(TOPIC) + "'. Press Control + C to exit.")
 
     init_mqtt()
-    signal.pause()
+    #signal.pause()
 
 if __name__ == "__main__":
     main()
