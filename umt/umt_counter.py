@@ -20,7 +20,12 @@ import os.path
 from os import path
 from config import PATHS, DEVICE
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
+logging.basicConfig(filename='log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%H:%M:%S',
+                            level=logging.DEBUG)  # Global logging configuration
+                            
 logger = logging.getLogger("UMT - Counter")  # Logger for this module
 logger.setLevel(logging.INFO) # Debugging for this file.
 
@@ -89,7 +94,6 @@ def crossed_gates():
                         timecat.insert(0, g)
                         timecat.insert(0, DEVICE.UUID)
                         detections.insert(0, timecat)
-                        print(detections)
 
 
 #--- Looks for Outstanding detection files, if a file exists it's opened and
@@ -103,7 +107,7 @@ def sendFile():
             previous_detections = pickle.load(f)
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
-            print(detections)
+            logger.debug(detections)
             with open(PATHS.DETECTIONS, 'wb') as f:
                 pickle.dump(detections, f)
             sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
