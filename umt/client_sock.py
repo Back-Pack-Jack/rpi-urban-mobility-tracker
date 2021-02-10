@@ -9,9 +9,13 @@ import time
 import logging
 from config import SOCKET, PATHS
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("UMT - Client Socket")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.DEBUG)  # Global logging configuration
+
+logger = logging.getLogger("Socket (client_sock.py) - ")  # Logger for this module
 
 # --- Server Network Information
 HOST = SOCKET.HOST 

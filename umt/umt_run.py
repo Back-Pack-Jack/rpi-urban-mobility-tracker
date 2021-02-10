@@ -9,9 +9,13 @@ from umt_init import UMTinit
 from umt_counter import main as countermain
 from mqtt import main as mqttmain
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("umt - run")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.DEBUG)  # Global logging configuration
+
+logger = logging.getLogger("Run (umt_run.py) - ")  # Logger for this module
 
 
 MAIN = os.path.join(os.path.dirname(__file__),'umt_main.py')

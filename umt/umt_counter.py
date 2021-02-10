@@ -20,15 +20,15 @@ import os.path
 from os import path
 from config import PATHS, DEVICE
 
-logging.basicConfig(filename='log',
+logname = os.path.join(os.path.dirname(__file__),"{}".format(DEVICE.UUID))
+
+logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                            datefmt='%H:%M:%S',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
                             level=logging.DEBUG)  # Global logging configuration
-                            
-logger = logging.getLogger("UMT - Counter")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
 
+logger = logging.getLogger("Counter (umt_counter.py) - ")  # Logger for this module
 # --- Sets platform directories --------------------------------
 
 gates = []
@@ -44,7 +44,7 @@ def readObjPaths():
         df.shape
         return True
     else:
-        logger.exception('No CSV path file to send')
+        logger.info('No CSV path file to send')
         return False
 
 
@@ -114,6 +114,7 @@ def sendFile():
             return sent
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
+        logger.debug(detections)
         with open(PATHS.DETECTIONS, 'wb') as f:
             pickle.dump(detections, f)
         sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
@@ -142,12 +143,11 @@ def count():
 
 
 def main():
-    schedule.every(1).minute.do(count)
+    schedule.every(30).seconds.do(count)
     
     while 1:
         schedule.run_pending()
         time.sleep(1)
-    
     
 
 if __name__ == '__main__':

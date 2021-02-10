@@ -26,7 +26,7 @@ class SOCKET:
 
 class MQTT:
     HOST = HOST
-    PORT = 1883
+    PORT = 1884
     TOPIC = [("cycle/live", 2)]
     CLIENT_ID = DEVICE.UUID
 

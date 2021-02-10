@@ -15,9 +15,13 @@ from config import MQTT as MQT
 from config import PATHS
 
 # Initialize Logging
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("mqtt.MQTT_Client")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.DEBUG)  # Global logging configuration
+
+logger = logging.getLogger("MQTT (mqtt.py) - ")  # Logger for this module
     
 # Global Variables
 BROKER_HOST = MQT.HOST
@@ -108,7 +112,7 @@ def init_mqtt():
             break
         except:
             logger.exception("Couldn't connect to broker. Retrying...")
-            time.sleep(5)
+            time.sleep(60)
             
     client.loop_start()
 

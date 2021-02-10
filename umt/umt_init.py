@@ -14,9 +14,13 @@ import pickle
 from sys import platform
 from config import PATHS, DEVICE
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("init - umt_init")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.DEBUG)  # Global logging configuration
+
+logger = logging.getLogger("Initialise (umt_init.py) - ")  # Logger for this module
 
 class UMTinit:
 
