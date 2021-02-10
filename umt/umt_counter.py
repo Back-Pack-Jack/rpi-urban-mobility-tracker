@@ -108,17 +108,23 @@ def sendFile():
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
             logger.debug(detections)
-            with open(PATHS.DETECTIONS, 'wb') as f:
-                pickle.dump(detections, f)
-            sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
-            return sent
+            if detections == []:
+                return False
+            else:
+                with open(PATHS.DETECTIONS, 'wb') as f:
+                    pickle.dump(detections, f)
+                sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
+                return sent
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
         logger.debug(detections)
         with open(PATHS.DETECTIONS, 'wb') as f:
             pickle.dump(detections, f)
-        sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
-        return sent
+        if detections == []:
+            return False
+        else:
+            sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
+            return sent
     
                         
 # --- Pickle the detection list to a byte file --------
@@ -132,7 +138,7 @@ def count():
         #--- If the file has been sent the existing detection file is deleted and if
         #--- not the file is retained to be appended to next time the counter runs.
         if not sent:
-            logger.info('Unable to send File, will retry after detections are calculated')
+            logger.info('Unable to send File, will retry after detections are calculated / No detections to send')
             return
         else:
             os.remove(PATHS.DETECTIONS)
@@ -151,6 +157,7 @@ def main():
     
 
 if __name__ == '__main__':
-    main()
+    #main()
+    sendFile()
 
 
