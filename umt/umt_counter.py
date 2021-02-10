@@ -120,12 +120,12 @@ def sendFile():
                 detections.insert(len(detections), previous_detection)
             logger.debug(detections)
             confDet = confirmDetectionContents()
-                return confDet
+            return confDet
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
         logger.debug(detections)
         confDet = confirmDetectionContents()
-                return confDet
+        return confDet
         
     
                         
