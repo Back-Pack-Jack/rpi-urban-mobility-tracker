@@ -1,7 +1,7 @@
 import os
 import pickle
 
-HOST = "192.168.1.236"
+HOST = "3.8.238.85"
 
 class PATHS:
     UUID = os.path.join(os.path.dirname(__file__),'resources/uuid.ssg')
