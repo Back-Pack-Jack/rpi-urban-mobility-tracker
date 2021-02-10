@@ -120,6 +120,7 @@ def sendFile():
                 detections.insert(len(detections), previous_detection)
             logger.debug(detections)
             confDet = confirmDetectionContents()
+            
             return confDet
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
@@ -137,6 +138,7 @@ def count():
     if readyTosend:
         crossed_gates() # Runs the algorithm to determine whether anybody has crossed the gates
         sent = sendFile()
+        os.remove(PATHS.CSV_PATH)
         # If the file has been sent the existing detection file is deleted and if
         # not the file is retained to be appended to next time the counter runs.
         if not sent:
@@ -144,7 +146,6 @@ def count():
             return
         else:
             os.remove(PATHS.DETECTIONS)
-            os.remove(PATHS.CSV_PATH)
             logger.info('File Sent to Server')
     else:
         logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
