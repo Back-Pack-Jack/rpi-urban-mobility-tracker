@@ -96,6 +96,17 @@ def crossed_gates():
                         detections.insert(0, timecat)
 
 
+def confirmDetectionContents():
+    if detections == []:
+        logger.info('No Detections Found')
+        return False
+    else:
+        with open(PATHS.DETECTIONS, 'wb') as f:
+            pickle.dump(detections, f)
+        sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
+        logger.info('Detections Found')
+        return sent
+
 #--- Looks for Outstanding detection files, if a file exists it's opened and
 #--- any new detections are appended to the end and the file saved.
 #--- The client attempts to transfer the file to the server returning a true
@@ -108,23 +119,14 @@ def sendFile():
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
             logger.debug(detections)
-            if detections == []:
-                return False
-            else:
-                with open(PATHS.DETECTIONS, 'wb') as f:
-                    pickle.dump(detections, f)
-                sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
-                return sent
+            confDet = confirmDetectionContents()
+                return confDet
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
         logger.debug(detections)
-        with open(PATHS.DETECTIONS, 'wb') as f:
-            pickle.dump(detections, f)
-        if detections == []:
-            return False
-        else:
-            sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
-            return sent
+        confDet = confirmDetectionContents()
+                return confDet
+        
     
                         
 # --- Pickle the detection list to a byte file --------
@@ -135,8 +137,8 @@ def count():
     if readyTosend:
         crossed_gates() # Runs the algorithm to determine whether anybody has crossed the gates
         sent = sendFile()
-        #--- If the file has been sent the existing detection file is deleted and if
-        #--- not the file is retained to be appended to next time the counter runs.
+        # If the file has been sent the existing detection file is deleted and if
+        # not the file is retained to be appended to next time the counter runs.
         if not sent:
             logger.info('Unable to send File, will retry after detections are calculated / No detections to send')
             return
