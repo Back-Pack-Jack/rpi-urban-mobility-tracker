@@ -19,7 +19,11 @@ logger = logging.getLogger("Socket (client_sock.py) - ")  # Logger for this modu
 
 # --- Server Network Information
 HOST = SOCKET.HOST 
-PORT = SOCKET.PORT 
+HOST_NAME = SOCKET.HOST_NAME
+PORT = SOCKET.PORT
+SERVER_CERT = SOCKET.SERVER_CERT
+CLIENT_CERT = SOCKET.CLIENT_CERT
+CLIENT_KEY = SOCKET.CLIENT_KEY
 DETECTIONS = PATHS.DETECTIONS
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096 # send 4096 bytes each time step
@@ -31,9 +35,14 @@ def connectToServer(host, port):
     sent = False
     for i in range(3):
         try:
-            global s
-            s = socket.socket() # create the client socket
-            s.connect((host, port))
+            global conn
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
+            context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # create the client socket
+            conn = context.wrap_socket(s, server_side=False, server_hostname=HOST_NAME)
+            conn.connect((HOST, PORT))
+
             logger.info(f"[+] Connecting to {host}:{port}")
             sent = True
             break
@@ -56,7 +65,7 @@ def sendFile(filename, device):
 
 
     # send the filename and filesize
-    s.send(f"{device}{SEPARATOR}{filesize}".encode())
+    conn.send(f"{device}{SEPARATOR}{filesize}".encode())
     print(f"{device}{SEPARATOR}{filesize}".encode())
 
     # start sending the file
@@ -71,11 +80,11 @@ def sendFile(filename, device):
                 break
             # we use sendall to assure transimission in 
             # busy networks
-            s.sendall(bytes_read)
+            conn.sendall(bytes_read)
             # update the progress bar
             progress.update(len(bytes_read))
     # close the socket
-    s.close()
+    conn.close()
     return sent
 
 
