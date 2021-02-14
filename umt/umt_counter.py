@@ -26,7 +26,7 @@ logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%Y-%m-%d, %H:%M:%S',
-                            level=logging.DEBUG)  # Global logging configuration
+                            level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Counter (umt_counter.py) - ")  # Logger for this module
 # --- Sets platform directories --------------------------------
@@ -82,7 +82,8 @@ def crossed_gates():
 
 def confirmDetectionContents():
     if detections == []:
-        os.remove(PATHS.DETECTIONS)
+        if path.exists(PATHS.DETECTIONS):
+            os.remove(PATHS.DETECTIONS)
         logger.info('No Detections Found')
         return False
     else:
@@ -148,7 +149,7 @@ def count():
 
 
 def main():
-    schedule.every(30).seconds.do(count)
+    schedule.every(10).seconds.do(count)
     
     while 1:
         schedule.run_pending()

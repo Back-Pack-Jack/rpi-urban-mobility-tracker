@@ -13,7 +13,7 @@ logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
                             datefmt='%Y-%m-%d, %H:%M:%S',
-                            level=logging.DEBUG)  # Global logging configuration
+                            level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Run (umt_run.py) - ")  # Logger for this module
 
