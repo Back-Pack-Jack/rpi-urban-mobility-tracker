@@ -34,22 +34,6 @@ logger = logging.getLogger("Counter (umt_counter.py) - ")  # Logger for this mod
 gates = []
 detections = []
 
-# --- Looks for 'object_paths.csv' and loads them into 'df' returning 'True' if the path
-# --- exists and 'False' if not.
-def readObjPaths():
-    global df
-    if(path.exists(PATHS.CSV_PATH)):
-        logger.info('Loading CSV paths into pandas')
-        df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
-        df.shape
-        return True
-    else:
-        logger.info('No CSV path file to send')
-        return False
-
-
-
-
 try:
         with open(PATHS.GATES, 'rb') as f: 
             gates = pickle.load(f)
@@ -98,6 +82,7 @@ def crossed_gates():
 
 def confirmDetectionContents():
     if detections == []:
+        os.remove(PATHS.DETECTIONS)
         logger.info('No Detections Found')
         return False
     else:
@@ -118,16 +103,27 @@ def sendFile():
             previous_detections = pickle.load(f)
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
-            logger.debug(detections)
+            logger.info(detections)
             confDet = confirmDetectionContents()
-            
             return confDet
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
-        logger.debug(detections)
+        logger.info(detections)
         confDet = confirmDetectionContents()
         return confDet
-        
+
+# --- Looks for 'object_paths.csv' and loads them into 'df' returning 'True' if the path
+# --- exists and 'False' if not.
+def readObjPaths():
+    global df
+    if(path.exists(PATHS.CSV_PATH)):
+        logger.info('Loading CSV paths into pandas')
+        df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
+        df.shape
+        return True
+    else:
+        logger.info('No CSV path file to send')
+        return False
     
                         
 # --- Pickle the detection list to a byte file --------
@@ -161,5 +157,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

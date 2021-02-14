@@ -34,9 +34,9 @@ BUFFER_SIZE = 4096 # send 4096 bytes each time step
 # --- seconds until a succesful connection is made.
 def connectToServer(host, port):
     sent = False
+    global conn
     for i in range(3):
         try:
-            global conn
             context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
             context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
 
@@ -67,7 +67,7 @@ def sendFile(filename, device):
 
     # send the filename and filesize
     conn.send(f"{device}{SEPARATOR}{filesize}".encode())
-    print(f"{device}{SEPARATOR}{filesize}".encode())
+    logger.info(f"{device}{SEPARATOR}{filesize}".encode())
 
     # start sending the file
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
@@ -88,5 +88,4 @@ def sendFile(filename, device):
     conn.close()
     return sent
 
-connectToServer(HOST, PORT)
  
