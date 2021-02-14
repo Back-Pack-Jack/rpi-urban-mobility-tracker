@@ -1,4 +1,4 @@
 {
     "jupyter.jupyterServerType": "local",
-    "python.pythonPath": "/Users/dominiceccles/anaconda3/envs/broker/bin/python"
+    "python.pythonPath": "/home/pi/venv/bin/python3"
 }

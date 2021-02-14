@@ -30,7 +30,7 @@ TRACKER_OUTPUT_TEXT_FILE = PATHS.CSV_PATH
 
 #--- CONSTANTS ----------------------------------------------------------------+
 
-LABEL_PATH = "models/pednet/model/labels.txt"
+LABEL_PATH = "models/tpu/mobilenet_ssd_v2_coco_quant/coco_labels.txt"
 DEFAULT_LABEL_MAP_PATH = os.path.join(os.path.dirname(__file__), LABEL_PATH)
 
 # deep sort related
@@ -90,7 +90,7 @@ def main():
         detections = generate_detections(pil_img, interpreter, threshold)
         
         # Saves tracked to file every x frames
-        if len(tracked_list) >= 500:
+        if len(tracked_list) >= 1000:
             with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
                 for x in tracked_list:
                     print(x, file=out_file)

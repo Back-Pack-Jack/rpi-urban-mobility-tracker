@@ -6,6 +6,7 @@ import pickle
 import logging
 from sys import platform
 import time
+import ssl
 import logging
 from config import SOCKET, PATHS
 
@@ -87,5 +88,5 @@ def sendFile(filename, device):
     conn.close()
     return sent
 
-
+connectToServer(HOST, PORT)
  
