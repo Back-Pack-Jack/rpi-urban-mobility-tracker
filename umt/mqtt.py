@@ -69,6 +69,7 @@ def on_message( client, user_data, msg): # Callback called when a message is rec
 
 def init_UUID(device):  # When the device initialises it sends a MQTT message with it's UUID back the server
     logger.info("Sending UUID to server")
+    global CLIENT_ID
     CLIENT_ID = device
     publish.single("cycle/init", device, hostname=BROKER_HOST, port=BROKER_PORT)
     
