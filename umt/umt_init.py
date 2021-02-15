@@ -39,7 +39,6 @@ class UMTinit:
         except FileNotFoundError:
             device = str(uuid.uuid4())
             init_UUID(device)
-            DEVICE.UUID = device
             with open(self.DEV_UUID, "wb") as f:
                 pickle.dump(device, f)
 

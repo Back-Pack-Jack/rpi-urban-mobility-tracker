@@ -21,7 +21,7 @@ logger = logging.getLogger("Run (umt_run.py) - ")  # Logger for this module
 MAIN = os.path.join(os.path.dirname(__file__),'umt_main.py')
 
 init = UMTinit()
-init.initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists, sends it's GPS location
+init.initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists
 logger.info('Initializing Device')
 init.initialize_picture()
 logger.info('Initializing Picture')
