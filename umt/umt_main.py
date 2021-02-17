@@ -97,7 +97,7 @@ def main():
                     print(x, file=out_file)
             print('dumped tracked to list')
             tracked_list = []
-            ThreadPool().map(count)
+            ThreadPool(2).map(count)
 
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
