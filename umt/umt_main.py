@@ -5,8 +5,7 @@ import time
 import argparse
 import signal
 import sys
-import datetime
-import threading
+from multiprocessing.pool import ThreadPool
 import cv2
 import numpy as np
 
@@ -98,7 +97,7 @@ def main():
                     print(x, file=out_file)
             print('dumped tracked to list')
             tracked_list = []
-            threading.Thread(target=count).start().join()
+            ThreadPool().map(count)
 
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
