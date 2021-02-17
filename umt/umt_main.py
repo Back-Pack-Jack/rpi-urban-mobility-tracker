@@ -5,8 +5,7 @@ import time
 import argparse
 import signal
 import sys
-import datetime
-
+from multiprocessing.pool import ThreadPool
 import cv2
 import numpy as np
 
@@ -24,6 +23,8 @@ from umt_utils import generate_detections
 #config
 from config import PATHS
 
+#counter
+from umt_counter import count
 
 TRACKER_OUTPUT_TEXT_FILE = PATHS.CSV_PATH
 
@@ -56,7 +57,7 @@ def main():
     #signal.signal(signal.SIGINT, signal_handler)
     #print('Running. Press Ctrl + C to exit.')
     global tracked_list
-    threshold = 0.4
+    threshold = 0.3
 
     print('> INITIALIZING UMT...')
     print('   > THRESHOLD:',threshold)
@@ -96,6 +97,7 @@ def main():
                     print(x, file=out_file)
             print('dumped tracked to list')
             tracked_list = []
+            ThreadPool().map(count)
 
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
