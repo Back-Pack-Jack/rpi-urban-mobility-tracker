@@ -13,7 +13,7 @@ from PIL import ImageTk, Image
 import pickle
 from sys import platform
 from config import PATHS, DEVICE
-
+'''
 logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -21,7 +21,7 @@ logging.basicConfig(filename='app.log',
                             level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Initialise (umt_init.py) - ")  # Logger for this module
-
+'''
 class UMTinit:
 
     def __init__(self):
@@ -35,7 +35,7 @@ class UMTinit:
         try:
             with open(self.DEV_UUID, 'rb') as f:
                 self.DEV_UUID = pickle.load(f)
-                logger.info("Loaded UUID")
+                #logger.info("Loaded UUID")
         except FileNotFoundError:
             device = str(uuid.uuid4())
             init_UUID(device)
