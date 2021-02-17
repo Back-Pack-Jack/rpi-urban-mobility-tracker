@@ -86,7 +86,6 @@ def sendFile(filename, device):
             progress.update(len(bytes_read))
             time.sleep(0.1)
     # close the socket
-    conn.shutdown(socket.SHUT_RD)
     conn.close()
     return sent
 
