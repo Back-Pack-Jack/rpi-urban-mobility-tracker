@@ -8,7 +8,7 @@ from sys import platform
 from umt_init import UMTinit
 from umt_counter import main as countermain
 from mqtt import main as mqttmain
-
+'''
 logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -16,18 +16,18 @@ logging.basicConfig(filename='app.log',
                             level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Run (umt_run.py) - ")  # Logger for this module
-
+'''
 
 MAIN = os.path.join(os.path.dirname(__file__),'umt_main.py')
 
 init = UMTinit()
 init.initialize_device() # From umt_init.py the device initializes i.e. checks if a UUID exists
-logger.info('Initializing Device')
+#logger.info('Initializing Device')
 init.initialize_picture()
-logger.info('Initializing Picture')
+#logger.info('Initializing Picture')
 init.initialize_zones()
-logger.info('Initializing Zones')
-logger.info('Running all scripts')
+#logger.info('Initializing Zones')
+#logger.info('Running all scripts')
 
 
 

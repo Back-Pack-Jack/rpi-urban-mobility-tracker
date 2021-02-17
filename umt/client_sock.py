@@ -9,7 +9,7 @@ import time
 import ssl
 import logging
 from config import SOCKET, PATHS
-
+'''
 logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -17,7 +17,7 @@ logging.basicConfig(filename='app.log',
                             level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Socket (client_sock.py) - ")  # Logger for this module
-
+'''
 # --- Server Network Information
 HOST = SOCKET.HOST 
 HOST_NAME = SOCKET.HOST_NAME
@@ -44,14 +44,14 @@ def connectToServer(host, port):
             conn = context.wrap_socket(s, server_side=False, server_hostname=HOST_NAME)
             conn.connect((HOST, PORT))
 
-            logger.info(f"[+] Connecting to {host}:{port}")
+            #logger.info(f"[+] Connecting to {host}:{port}")
             sent = True
             break
         except:
-            logger.info('Cannot connect to server. Retrying...')
+            #logger.info('Cannot connect to server. Retrying...')
             time.sleep(5)
     if not sent:
-        logger.info('Failed to connect to server.')
+        #logger.info('Failed to connect to server.')
     return sent
 
 
@@ -67,7 +67,7 @@ def sendFile(filename, device):
 
     # send the filename and filesize
     conn.send(f"{device}{SEPARATOR}{filesize}".encode())
-    logger.info(f"{device}{SEPARATOR}{filesize}".encode())
+    #logger.info(f"{device}{SEPARATOR}{filesize}".encode())
 
     # start sending the file
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
@@ -84,6 +84,7 @@ def sendFile(filename, device):
             conn.sendall(bytes_read)
             # update the progress bar
             progress.update(len(bytes_read))
+            time.sleep(0.1)
     # close the socket
     conn.shutdown(socket.SHUT_RD)
     conn.close()

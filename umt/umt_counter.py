@@ -21,7 +21,7 @@ from os import path
 from config import PATHS, DEVICE
 
 logname = os.path.join(os.path.dirname(__file__),"{}".format(DEVICE.UUID))
-
+'''
 logging.basicConfig(filename='app.log',
                             filemode='a',
                             format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
@@ -29,6 +29,7 @@ logging.basicConfig(filename='app.log',
                             level=logging.INFO)  # Global logging configuration
 
 logger = logging.getLogger("Counter (umt_counter.py) - ")  # Logger for this module
+'''
 # --- Sets platform directories --------------------------------
 
 gates = []
@@ -38,7 +39,8 @@ try:
         with open(PATHS.GATES, 'rb') as f: 
             gates = pickle.load(f)
 except:
-    logger.info('Gate load error')
+    #logger.info('Gate load error')
+    pass
 
 
 def ccw(a, b, c):
@@ -84,13 +86,13 @@ def confirmDetectionContents():
     if detections == []:
         if path.exists(PATHS.DETECTIONS):
             os.remove(PATHS.DETECTIONS)
-        logger.info('No Detections Found')
+        #logger.info('No Detections Found')
         return False
     else:
         with open(PATHS.DETECTIONS, 'wb') as f:
             pickle.dump(detections, f)
         sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
-        logger.info('Detections Found')
+        #logger.info('Detections Found')
         return sent
 
 #--- Looks for Outstanding detection files, if a file exists it's opened and
@@ -100,15 +102,15 @@ def confirmDetectionContents():
 def sendFile():
     try:
         with open(PATHS.DETECTIONS, 'rb') as f:
-            logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
+            #logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
             previous_detections = pickle.load(f)
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
-            logger.info(detections)
+            #logger.info(detections)
             confDet = confirmDetectionContents()
             return confDet
     except FileNotFoundError:
-        logger.info('No Outstanding Detections Found. Dumping detections to file.')
+        #logger.info('No Outstanding Detections Found. Dumping detections to file.')
         confDet = confirmDetectionContents()
         return confDet
 
@@ -117,12 +119,12 @@ def sendFile():
 def readObjPaths():
     global df
     if(path.exists(PATHS.CSV_PATH)):
-        logger.info('Loading CSV paths into pandas')
+        #logger.info('Loading CSV paths into pandas')
         df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
         df.shape
         return True
     else:
-        logger.info('No CSV path file to send')
+        #logger.info('No CSV path file to send')
         return False
     
                         
@@ -138,13 +140,13 @@ def count():
         # If the file has been sent the existing detection file is deleted and if
         # not the file is retained to be appended to next time the counter runs.
         if not sent:
-            logger.info('Unable to send File, will retry after detections are calculated / No detections to send')
+            #logger.info('Unable to send File, will retry after detections are calculated / No detections to send')
             return
         else:
             os.remove(PATHS.DETECTIONS)
-            logger.info('File Sent to Server')
+            #logger.info('File Sent to Server')
     else:
-        logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
+        #logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
 
 
 def main():
