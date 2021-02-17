@@ -70,7 +70,7 @@ def sendFile(filename, device):
     logger.info(f"{device}{SEPARATOR}{filesize}".encode())
 
     # start sending the file
-    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=1024)
+    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
 
     with open(filename, "rb") as f:
         for _ in progress:
@@ -85,6 +85,7 @@ def sendFile(filename, device):
             # update the progress bar
             progress.update(len(bytes_read))
     # close the socket
+    conn.shutdown(socket.SHUT_RD)
     conn.close()
     return sent
 

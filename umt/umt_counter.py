@@ -109,7 +109,6 @@ def sendFile():
             return confDet
     except FileNotFoundError:
         logger.info('No Outstanding Detections Found. Dumping detections to file.')
-        logger.info(detections)
         confDet = confirmDetectionContents()
         return confDet
 
