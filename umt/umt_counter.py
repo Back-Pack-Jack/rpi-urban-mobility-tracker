@@ -147,10 +147,11 @@ def count():
             #logger.info('File Sent to Server')
     else:
         #logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
+        pass
 
-
+'''
 def main():
-    schedule.every(10).seconds.do(count)
+    schedule.every(60).seconds.do(count)
     
     while 1:
         schedule.run_pending()
@@ -159,3 +160,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+'''
