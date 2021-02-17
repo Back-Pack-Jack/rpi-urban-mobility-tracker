@@ -98,7 +98,7 @@ def main():
                     print(x, file=out_file)
             print('dumped tracked to list')
             tracked_list = []
-            t1 = threading.Thread(target=count).start()
+            threading.Thread(target=count).start().join()
 
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
