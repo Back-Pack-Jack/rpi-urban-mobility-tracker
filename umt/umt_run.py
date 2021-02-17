@@ -6,7 +6,7 @@ import signal
 import os
 from sys import platform
 from umt_init import UMTinit
-from umt_counter import main as countermain
+#from umt_counter import main as countermain
 from mqtt import main as mqttmain
 '''
 logging.basicConfig(filename='app.log',

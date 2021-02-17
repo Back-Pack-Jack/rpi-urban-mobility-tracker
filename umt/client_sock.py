@@ -50,7 +50,7 @@ def connectToServer(host, port):
         except:
             #logger.info('Cannot connect to server. Retrying...')
             time.sleep(5)
-    if not sent:
+    #if not sent:
         #logger.info('Failed to connect to server.')
     return sent
 
