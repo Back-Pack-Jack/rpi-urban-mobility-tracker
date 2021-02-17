@@ -33,7 +33,7 @@ init.initialize_zones()
 
 p1 = subprocess.Popen(['python', MAIN])
 
-t1 = threading.Thread(target=countermain).start()
+#t1 = threading.Thread(target=countermain).start()
 
 t2 = threading.Thread(target=mqttmain).start()
  
