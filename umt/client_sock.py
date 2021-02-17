@@ -62,7 +62,7 @@ def sendFile(filename, device):
     if not sent:
         return sent
 
-    filesize = sys.getsizeof(filename) # get the file size
+    filesize = os.path.getsize(filename) # get the file size
 
 
     # send the filename and filesize
@@ -73,7 +73,7 @@ def sendFile(filename, device):
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
 
     with open(filename, "rb") as f:
-        for _ in progress:
+        while True:
             # read the bytes from the file
             bytes_read = f.read(BUFFER_SIZE)
             if not bytes_read:
@@ -84,7 +84,6 @@ def sendFile(filename, device):
             conn.sendall(bytes_read)
             # update the progress bar
             progress.update(len(bytes_read))
-            time.sleep(0.1)
     # close the socket
     conn.shutdown(socket.SHUT_WR)
     time.sleep(7)
