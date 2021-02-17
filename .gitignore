@@ -138,3 +138,10 @@ dmypy.json
 cython_debug/
 
 #
+umt/resources/detections.csv
+umt/resources/gates.ssg
+umt/resources/image_capture.png
+umt/resources/object_paths.csv
+umt/resources/uuid.ssg
+umt/umt_main.py
+

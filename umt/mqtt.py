@@ -44,13 +44,13 @@ def on_connect( client, user_data, flags, connection_result_code):
     This way if a connection is lost, the automatic
     re-connection will also results in the re-subscription occurring."""
 
-    if connection_result_code == 0:                                                            
+    #if connection_result_code == 0:                                                            
         # 0 = successful connection
         #logger.info("Connected to MQTT Broker")
-    else:
+    #else:
         # connack_string() gives us a user friendly string for a connection code.
         #logger.error("Failed to connect to MQTT Broker: " + mqtt.connack_string(connection_result_code))
-
+        #print('')
     # Subscribe to the topic for LED level changes.
     client.subscribe(TOPIC)                                                             
 
