@@ -75,11 +75,13 @@ def sendFile(filename, device):
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
 
     with open(filename, "rb") as packets:
-        while True:
+       # while True:
             # read the bytes from the file
-            packet = packets.read(BUFFER_SIZE)
-            length = struct.pack('!I', len(packet))
-            packet = length + packet
+            #packet = packets.read(BUFFER_SIZE)
+            length = len(packets)
+            conn.sendall(struct.pack('!I', length))
+            conn.sendall(packets)
+            '''
             if not packet:
                 # file transmitting is done
                 break
@@ -88,6 +90,7 @@ def sendFile(filename, device):
             conn.sendall(packet)
             # update the progress bar
             progress.update(len(packet))
+            '''
     # close the socket
     conn.shutdown(socket.SHUT_WR)
     time.sleep(7)
