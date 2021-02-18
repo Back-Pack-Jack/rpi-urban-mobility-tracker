@@ -57,6 +57,7 @@ def connectToServer(host, port):
 
 
 def sendFile(filename, device):
+    print('Preparing to send file')
 
     sent = connectToServer(HOST, PORT)
 
@@ -93,4 +94,3 @@ def sendFile(filename, device):
     conn.close()
     return sent
 
- 
