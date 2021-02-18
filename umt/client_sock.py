@@ -81,16 +81,16 @@ def sendFile(filename, device):
     length = len(packets)
     conn.sendall(struct.pack('!I', length))
     conn.sendall(packets)
-            '''
-            if not packet:
-                # file transmitting is done
-                break
-            # we use sendall to assure transimission in 
-            # busy networks
-            conn.sendall(packet)
-            # update the progress bar
-            progress.update(len(packet))
-            '''
+    '''
+    if not packet:
+        # file transmitting is done
+        break
+    # we use sendall to assure transimission in 
+    # busy networks
+    conn.sendall(packet)
+    # update the progress bar
+    progress.update(len(packet))
+    '''
     # close the socket
     conn.shutdown(socket.SHUT_WR)
     time.sleep(7)
