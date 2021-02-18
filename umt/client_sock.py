@@ -9,7 +9,7 @@ import time
 import ssl
 import logging
 from config import SOCKET, PATHS
-import struct
+from struct import pack
 '''
 logging.basicConfig(filename='app.log',
                             filemode='a',
@@ -82,9 +82,6 @@ def sendFile(filename, device):
     conn.sendall(length)
     conn.sendall(det_data)
     ack = conn.recv(1)
-
-    conn.sendall(struct.pack('!I', length))
-    conn.sendall(packet)
             
     # close the socket
     conn.shutdown(socket.SHUT_WR)
