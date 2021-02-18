@@ -74,23 +74,23 @@ def sendFile(filename, device):
     # start sending the file
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
 
-    packets = open(filename, "rb")
+    with open(filename, "rb") as packets:
        # while True:
             # read the bytes from the file
             #packet = packets.read(BUFFER_SIZE)
-    length = len(packets)
-    conn.sendall(struct.pack('!I', length))
-    conn.sendall(packets)
-    '''
-    if not packet:
-        # file transmitting is done
-        break
-    # we use sendall to assure transimission in 
-    # busy networks
-    conn.sendall(packet)
-    # update the progress bar
-    progress.update(len(packet))
-    '''
+            length = len(packets.readlines())
+            conn.sendall(struct.pack('!I', length))
+            conn.sendall(packets)
+            '''
+            if not packet:
+                # file transmitting is done
+                break
+            # we use sendall to assure transimission in 
+            # busy networks
+            conn.sendall(packet)
+            # update the progress bar
+            progress.update(len(packet))
+            '''
     # close the socket
     conn.shutdown(socket.SHUT_WR)
     time.sleep(7)
