@@ -78,9 +78,10 @@ def sendFile(filename, device):
        # while True:
             # read the bytes from the file
             #packet = packets.read(BUFFER_SIZE)
-            length = len(packets.readlines())
+            packet = packets.read()
+            length = len(packet)
             conn.sendall(struct.pack('!I', length))
-            conn.sendall(packets)
+            conn.sendall(packet)
             '''
             if not packet:
                 # file transmitting is done
