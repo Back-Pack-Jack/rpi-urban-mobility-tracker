@@ -122,6 +122,7 @@ def readObjPaths():
         #logger.info('Loading CSV paths into pandas')
         df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
         df.shape
+        os.remove(PATHS.CSV_PATH)
         return True
     else:
         #logger.info('No CSV path file to send')
@@ -136,7 +137,6 @@ def count():
     if readyTosend:
         crossed_gates() # Runs the algorithm to determine whether anybody has crossed the gates
         sent = sendFile()
-        os.remove(PATHS.CSV_PATH)
         # If the file has been sent the existing detection file is deleted and if
         # not the file is retained to be appended to next time the counter runs.
         if not sent:
