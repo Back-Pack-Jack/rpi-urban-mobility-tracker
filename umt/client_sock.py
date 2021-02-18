@@ -9,6 +9,7 @@ import time
 import ssl
 import logging
 from config import SOCKET, PATHS
+import struct
 '''
 logging.basicConfig(filename='app.log',
                             filemode='a',
@@ -72,18 +73,20 @@ def sendFile(filename, device):
     # start sending the file
     progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
 
-    with open(filename, "rb") as f:
+    with open(filename, "rb") as packets:
         while True:
             # read the bytes from the file
-            bytes_read = f.read(BUFFER_SIZE)
-            if not bytes_read:
+            packet = packets.read(BUFFER_SIZE)
+            length = struct.pack('!I', len(packet))
+            packet = length + packet
+            if not packet:
                 # file transmitting is done
                 break
             # we use sendall to assure transimission in 
             # busy networks
-            conn.sendall(bytes_read)
+            conn.sendall(packet)
             # update the progress bar
-            progress.update(len(bytes_read))
+            progress.update(len(packet))
     # close the socket
     conn.shutdown(socket.SHUT_WR)
     time.sleep(7)
