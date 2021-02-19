@@ -85,7 +85,7 @@ def sendFile(filename, device):
             
     # close the socket
     conn.shutdown(socket.SHUT_WR)
-    time.sleep(7)
+    time.sleep(1)
     conn.close()
     return sent
 
