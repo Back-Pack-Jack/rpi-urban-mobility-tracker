@@ -91,7 +91,7 @@ def main():
         
         # Saves tracked to file every x frames
         if len(tracked_list) >= 1000:
-            with open(TRACKER_OUTPUT_TEXT_FILE, 'w') as out_file:
+            with open(TRACKER_OUTPUT_TEXT_FILE, 'a') as out_file:
                 for x in tracked_list:
                     print(x, file=out_file)
             print('dumped tracked to list')
