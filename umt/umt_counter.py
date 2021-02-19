@@ -131,6 +131,7 @@ def readObjPaths():
                         
 # --- Pickle the detection list to a byte file --------
 def count():
+    global detections
     detections = []
     readyTosend = readObjPaths()
     
