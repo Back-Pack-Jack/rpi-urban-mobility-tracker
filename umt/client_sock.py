@@ -10,6 +10,7 @@ import ssl
 import logging
 from config import SOCKET, PATHS
 from struct import pack
+
 '''
 logging.basicConfig(filename='app.log',
                             filemode='a',
@@ -27,64 +28,59 @@ SERVER_CERT = SOCKET.SERVER_CERT
 CLIENT_CERT = SOCKET.CLIENT_CERT
 CLIENT_KEY = SOCKET.CLIENT_KEY
 DETECTIONS = PATHS.DETECTIONS
+DEVICE = "TEST"
 SEPARATOR = "<SEPARATOR>"
 BUFFER_SIZE = 4096 # send 4096 bytes each time step
 
 
 # --- Attempts to connect to the server, if the devices fails it'll re-try every 60
 # --- seconds until a succesful connection is made.
-def connectToServer(host, port):
-    sent = False
-    global conn
+def connectToServer():
+
+    context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
+    context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
+
     for i in range(3):
         try:
-            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERT)
-            context.load_cert_chain(certfile=CLIENT_CERT, keyfile=CLIENT_KEY)
-
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # create the client socket
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             conn = context.wrap_socket(s, server_side=False, server_hostname=HOST_NAME)
             conn.connect((HOST, PORT))
-
-            #logger.info(f"[+] Connecting to {host}:{port}")
-            sent = True
-            break
+            print(f"[+] Connecting to {HOST}:{PORT}")
+            return True, conn
         except:
-            #logger.info('Cannot connect to server. Retrying...')
+            print("[+] Cannot connect to server. Retrying...")
             time.sleep(5)
-    #if not sent:
-        #logger.info('Failed to connect to server.')
-    return sent
+
+    print(f"[+] Failed to connect to {HOST}:{PORT}")
+    return False, None
 
 
-def sendFile(filename, device):
-    print('Preparing to send file')
+def sendPacket(packet):
+    ID = packet["ID"]
+    TIME = packet["TIME"]
+    TOPIC = packet["TOPIC"]
 
-    sent = connectToServer(HOST, PORT)
-
-    if not sent:
-        return sent
-
-    filesize = os.path.getsize(filename) # get the file size
-
-
-    # send the filename and filesize
-    conn.send(f"{device}{SEPARATOR}{filesize}".encode())
-    #logger.info(f"{device}{SEPARATOR}{filesize}".encode())
-
-    # start sending the file
-    progress = tqdm.tqdm(range(filesize), f"Sending {filename}", unit="B", unit_scale=True, unit_divisor=BUFFER_SIZE)
-
-    with open(filename, "rb") as packet:
-        det_data = packet.read()
+    def pickledPacket(packet):
+        pickledPacket = pickle.dumps(packet)
+        return pickledPacket
     
+    connected, conn = connectToServer()
+    if not connected:
+        return
 
-    length = pack('>Q', len(det_data))
+    packet = pickledPacket(packet)
+    packetsize = sys.getsizeof(packet)
+
+    conn.send(f"{TIME}{SEPARATOR}{ID}{SEPARATOR}{packetsize}{SEPARATOR}{TOPIC}".encode())
+    
+    length = pack('>Q', len(packet))
     conn.sendall(length)
-    conn.sendall(det_data)
+    conn.sendall(packet)
     ack = conn.recv(1)
-            
-    # close the socket
+    
+    print(f"[+] Data transfer successfully completed.")
+
     conn.shutdown(socket.SHUT_WR)
     conn.close()
-    return sent
+
 

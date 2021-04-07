@@ -1,19 +1,27 @@
 import argparse
-import device
+from device import Device
+from mqttlib import MSG_HANDLER
 
 
 def main():
 
+    # Load Device Settings 
     # --- Device is loaded from settings.ssg file. If no file
     # --- exists one is created and the variables stored.
-    
-    device.load()
+    device = Device()
+    newDevice = device.load()
+    if newDevice:
+        message = MSG_HANDLER(device.UUID, 'cycle/newdevice')
+        message.handle_request()
+        
 
+
+    '''
     if device.GATES == None:
         # Create gates server side.
         device.save()
         pass 
-
+    '''
     '''
     # parse arguments
     parser = argparse.ArgumentParser(description='--- Raspbery Pi Urban Mobility Tracker ---')

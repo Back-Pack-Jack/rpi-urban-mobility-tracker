@@ -1,7 +1,7 @@
 import os
 import pickle
 
-HOST = "3.8.238.85"
+HOST = "192.168.1.236"
 HOST_NAME = "172-31-22-149.eu-west-2.compute.internal"
 
 class PATHS:
@@ -36,7 +36,7 @@ class SOCKET:
 
 class MQTT:
     HOST = HOST
-    PORT = 1884
-    TOPIC = [("cycle/live", 2)]
+    PORT = 1883
+    TOPIC = [("cycle/uuid", 2), ("cycle/img", 2), ("cycle/gps", 2), ("cycle/bme680", 2), ("cycle/sensiron", 2), ("cycle/count", 2), ("cycle/newdevice", 2)]
     CLIENT_ID = DEVICE.UUID
 

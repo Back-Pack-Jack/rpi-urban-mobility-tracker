@@ -132,5 +132,3 @@ class UMTinit:
             with open(self.GATES, "wb") as f:
                 pickle.dump(self.gates, f)
         
-UMTinit = UMTinit()
-UMTinit.initialize_zones()
