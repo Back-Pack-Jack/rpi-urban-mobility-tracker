@@ -31,6 +31,7 @@ BROKER_PORT = MQT.PORT
 CLIENT_ID = 'MQT.CLIENT_ID'
 TOPIC = MQT.TOPIC
 DATA_BLOCK_SIZE = 2000
+SEPARATOR = "<SEPARATOR>"
 
 process = None
 client = None  # MQTT client instance. See init_mqtt()
@@ -56,10 +57,12 @@ def on_disconnect( client, user_data, disconnection_result_code):
 
 def on_message(client, user_data, msg):                                                    
     #logger.info("Received message for topic {}: {}".format( msg.topic, msg.payload))
-    msg_payload = msg.payload.decode("utf-8")
-    if msg_payload == CLIENT_ID or msg_payload == "ALL":
-        message = MSG_HANDLER('CLIENT_ID', msg.topic)
+    print(f"Received message for topic {msg.topic} : {msg.payload}")
+    _id, _sr = msg.payload.decode("utf-8").split(SEPARATOR)
+    if _id == CLIENT_ID or _id == "ALL":
+        message = MSG_HANDLER('CLIENT_ID', msg.topic, _sr)
         message.handle_request()
+
 
 
 def init_UUID(device):  # When the device initialises it sends a MQTT message with it's UUID back the server

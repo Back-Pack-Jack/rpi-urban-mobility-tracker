@@ -5,17 +5,17 @@ from mqttlib import MSG_HANDLER
 
 def main():
 
-    # Load Device Settings 
-    # --- Device is loaded from settings.ssg file. If no file
-    # --- exists one is created and the variables stored.
     device = Device()
-    newDevice = device.load()
+    newDevice = device.load() # Load Device Settings
+    
+    # If the containing folder has no settings.ssg file it's assumed that the device is new
+    # and the information about the device is communicated with the server.
     if newDevice:
         message = MSG_HANDLER(device.UUID, 'cycle/newdevice')
         message.handle_request()
         
-
-
+    # Run MQTT
+    # 
     '''
     if device.GATES == None:
         # Create gates server side.

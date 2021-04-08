@@ -4,11 +4,11 @@ from client_sock import sendPacket
 from device import Device
 
 class MSG_HANDLER:
-    def __init__(self, _id, msg):
+    def __init__(self, _id, msg, _sr):
         device = Device()
         self.id = _id
-        #self.query = msg.topic
         self.query = msg
+        self.snd_rcv = _sr
         self.data = None
         self.time = None
         self.dispatcher = {
@@ -29,13 +29,25 @@ class MSG_HANDLER:
                     }
             return(packet)
 
-        for f in func_list:
-            try:
-                self.data = f()
-            except Exception:
-                self.data = f
-            packet = create_packet()
-            sendPacket(packet)
+
+        def form_data():
+            if self.snd_rcv == "S":
+                for f in func_list:
+                    try:
+                        self.data = f()
+                    except Exception:
+                        self.data = f
+            elif self.snd_rcv == "R":
+                self.data = None
+
+        
+        def snd_packet():  
+                form_data()       
+                packet = create_packet()
+                sendPacket(packet)
+            
+        snd_packet()
+
 
     # Reads in an MQTT topic and performs an action based upon pre-determined dispatcher functions,
     # returning the data back to the create_response function as data.
