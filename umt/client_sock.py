@@ -12,16 +12,7 @@ from config import SOCKET, PATHS
 from struct import pack
 from struct import unpack
 
-'''
-logging.basicConfig(filename='app.log',
-                            filemode='a',
-                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
-                            datefmt='%Y-%m-%d, %H:%M:%S',
-                            level=logging.INFO)  # Global logging configuration
 
-logger = logging.getLogger("Socket (client_sock.py) - ")  # Logger for this module
-'''
-# --- Server Network Information
 HOST = SOCKET.HOST 
 HOST_NAME = SOCKET.HOST_NAME
 PORT = SOCKET.PORT
@@ -31,7 +22,7 @@ CLIENT_KEY = SOCKET.CLIENT_KEY
 DETECTIONS = PATHS.DETECTIONS
 DEVICE = "TEST"
 SEPARATOR = "<SEPARATOR>"
-BUFFER_SIZE = 4096 # send 4096 bytes each time step
+BUFFER_SIZE = 4096 
 
 
 # --- Attempts to connect to the server, if the devices fails it'll re-try every 60
