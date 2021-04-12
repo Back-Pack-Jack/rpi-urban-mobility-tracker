@@ -50,7 +50,7 @@ def initialize_img_source():
 
 def initialize_detector():
                 
-    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite' #'models/pednet/model/ped_tpu.tflite' 
+    TPU_PATH = 'models/tpu/mobilenet_ssd_v2_coco_quant/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite' 
     model_path = os.path.join(os.path.dirname(__file__), TPU_PATH)
         
     _, *device = model_path.split('@')

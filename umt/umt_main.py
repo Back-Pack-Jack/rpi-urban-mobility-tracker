@@ -18,6 +18,7 @@ from umt_utils import parse_label_map
 from umt_utils import initialize_detector
 from umt_utils import initialize_img_source
 from umt_utils import generate_detections
+from utils.color_recognition_module import color_recognition_api
 
 #config
 from config import PATHS
@@ -88,6 +89,11 @@ def main():
 
         # get detections
         detections = generate_detections(pil_img, interpreter, threshold)
+        
+        # get colour
+        image_temp = numpy.array(pil_img)
+        detected_vehicle_image = image_temp[int(top):int(bottom), int(left):int(right)]
+        predicted_color = color_recognition_api.color_recognition(detected_vehicle_image) # Color
         
         # Saves tracked to file every x frames
         if len(tracked_list) >= 1000:
