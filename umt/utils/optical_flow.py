@@ -1,64 +1,59 @@
-# Python 2/3 compatibility
-from __future__ import print_function
-import numpy as np
-import cv2 as cv
+import time
 
-from utils.common import anorm2, draw_str
+class OpticalFlow:
 
-lk_params = dict( winSize  = (15, 15),
-                  maxLevel = 2,
-                  criteria = (cv.TERM_CRITERIA_EPS | cv.TERM_CRITERIA_COUNT, 10, 0.03))
-
-feature_params = dict( maxCorners = 500,
-                       qualityLevel = 0.3,
-                       minDistance = 7,
-                       blockSize = 7 )
-
-class App:
     def __init__(self):
-        self.track_len = 10
-        self.detect_interval = 5
-        self.tracks = []
+        self.track = None
         self.frame = None
-        self.frame_idx = 0
-        self.vis = None
+        self._optiflow_list = []
+        self.group_frame = None
+        self.temp_list = []
+        self.track_len = 10
+        self.vehicle_type = None
+        self.vehicle_colour = None
+        self.pasttwoframes = list
+        self.pasttwocentroids = []
+        self.grouped_id = []
+        self.time = int(time.time())
 
-    def run(self):
+    def append_list(self):
+        if self.group_frame == None:
+            self.group_frame = self.frame
+        if self.group_frame != self.frame:
+            self._optiflow_list.append(self.temp_list)
+            self.temp_list = []
+            self.group_frame = self.frame
+            self.pasttwoframes = self._optiflow_list[-2:]
+            self.group_by_id()
+            self.extract_last_two_centroids()
+        if len(self._optiflow_list) > self.track_len:
+            del(self._optiflow_list[0])
 
-        frame_gray = cv.cvtColor(self.frame, cv.COLOR_BGR2GRAY)
-        vis = self.frame.copy()
+    def append_record(self):
+        self.append_list()
+        cx, cy = self._calc_centroid(self.track.to_tlbr())
+        rec = [self.frame, self.track.track_id, self.vehicle_type, self.vehicle_colour, self.time, [cx, cy]]
+        self.temp_list.append(rec)
 
-        if len(self.tracks) > 0:
-            img0, img1 = self.prev_gray, frame_gray
-            p0 = np.float32([tr[-1] for tr in self.tracks]).reshape(-1, 1, 2)
-            p1, _st, _err = cv.calcOpticalFlowPyrLK(img0, img1, p0, None, **lk_params)
-            p0r, _st, _err = cv.calcOpticalFlowPyrLK(img1, img0, p1, None, **lk_params)
-            d = abs(p0-p0r).reshape(-1, 2).max(-1)
-            good = d < 1
-            new_tracks = []
-            for tr, (x, y), good_flag in zip(self.tracks, p1.reshape(-1, 2), good):
-                if not good_flag:
-                    continue
-                tr.append((x, y))
-                if len(tr) > self.track_len:
-                    del tr[0]
-                new_tracks.append(tr)
-                cv.circle(vis, (x, y), 2, (0, 255, 0), -1)
-            self.tracks = new_tracks
-            cv.polylines(vis, [np.int32(tr) for tr in self.tracks], False, (0, 255, 0))
-            draw_str(vis, (20, 20), 'track count: %d' % len(self.tracks))
+    def group_by_id(self): 
+        if len(self.pasttwoframes) != 1:
+            group = [lists for list in self._optiflow_list for lists in list]
+            unique_id = set([list[1] for list in group])
+            self.grouped_id = [[list[1:] for list in group if list[1] == value] for value in unique_id]
 
-        if self.frame_idx % self.detect_interval == 0:
-            mask = np.zeros_like(frame_gray)
-            mask[:] = 255
-            for x, y in [np.int32(tr[-1]) for tr in self.tracks]:
-                cv.circle(mask, (x, y), 5, 0, -1)
-            p = cv.goodFeaturesToTrack(frame_gray, mask = mask, **feature_params)
-            if p is not None:
-                for x, y in np.float32(p).reshape(-1, 2):
-                    self.tracks.append([(x, y)])
+    def extract_last_two_centroids(self):
+        temp_list = [lists[-2:] for lists in self.grouped_id]
+        self.pasttwocentroids = temp_list
 
+    def _calc_centroid(self, bbox):
+        xmin, ymin, width, height = self._clac_cent_coord(bbox)
+        cx = xmin + (0.5 * width)
+        cy = ymin + (0.5 * height)
+        return cx, cy
 
-        self.frame_idx += 1
-        self.prev_gray = frame_gray
-        self.vis = vis
+    def _clac_cent_coord(self, bbox):
+        xmin = int(bbox[0])
+        ymin = int(bbox[1])
+        width = int(bbox[2]- bbox[0])
+        height = int(bbox[3]-bbox[1])
+        return xmin, ymin, width, height

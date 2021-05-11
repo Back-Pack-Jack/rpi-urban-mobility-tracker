@@ -2,7 +2,7 @@ import uuid
 import pickle
 from mqtt import init_UUID
 import logging
-from picamera import PiCamera
+#from picamera import PiCamera
 from time import sleep
 import pandas as pd
 from PIL import Image
@@ -121,6 +121,7 @@ class UMTinit:
         try:
             with open(self.GATES, 'rb') as f:
                 self.gates = pickle.load(f)
+                print(self.gates)
         except FileNotFoundError:
             my_window = Tk() # Defines Tkinter Window
             background_image = ImageTk.PhotoImage(Image.open(self.IMG_PATH)) # Creates an img object
@@ -131,4 +132,5 @@ class UMTinit:
             self.display_gates()
             with open(self.GATES, "wb") as f:
                 pickle.dump(self.gates, f)
+                print(self.gates)
         

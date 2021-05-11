@@ -7,6 +7,7 @@ import signal
 import sys
 import cv2
 import numpy as np
+import dlib
 
 # deep sort
 from deep_sort.tracker import Tracker
@@ -18,6 +19,8 @@ from umt_utils import parse_label_map
 from umt_utils import initialize_detector
 from umt_utils import initialize_img_source
 from umt_utils import generate_detections
+
+from utils.centroidtracker import CentroidTracker
 
 from umt_utils import visualize_boxes_and_labels_on_image_array
 
@@ -118,32 +121,33 @@ def main():
     #optical_flow.init_opt_flow(frame)
     optiflow = App()
 
+    ct = CentroidTracker(maxDisappeared=40, maxDistance=50)
+
     while cap.isOpened():
-        (ret, frame) = cap.read() # Reads cam and returns frame
+        # read and return frame from camera
+        ret, frame = cap.read() 
+
+        # if the video stream ends then terminate the loop
+        if not ret:
+            print ('end of the video file...')
+            break
+
         print('> FRAME:', cap.get(1))
 
-        # header = (f'frame_num, rpi_time, obj_class, obj_id, obj_age, obj_t_since_last_update, obj_hits, xmin, ymin, xmax, ymax')
-
-        # get detections
+        # create an image object from an array and pass it generate detections
+        # to return a deep sort object and a dictionary containing detection info 
         pil_img = Image.fromarray(frame)
         detections, det_info = generate_detections(pil_img, interpreter, threshold)
-        '''
-        for x in det_info['bboxes']:
-            print(x)
-        '''
-        input_frame = np.array(pil_img)
 
         #flow_frame, flow_mask = optical_flow.opt_flow(frame)
         optiflow.frame = frame
         optiflow.run()
-        if not ret:
-            print ('end of the video file...')
-            break
+        
     
         f_time = int(time.time())
 
-        ######## ------- HERE 
-        
+
+        input_frame = np.array(pil_img)
         (counter, csv_line) = \
                     visualize_boxes_and_labels_on_image_array(
                     cap.get(1),
@@ -155,94 +159,7 @@ def main():
                     use_normalized_coordinates=True,
                     line_thickness=4,
                     )
-        '''
-        total_passed_vehicle = total_passed_vehicle + counter
-        #print(i)
-        if csv_line != 'not_available':
-            size, color, direction, speed = csv_line.split(',')
-
-        font = cv2.FONT_HERSHEY_SIMPLEX
-        cv2.putText(
-            input_frame,
-            'Detected Vehicles: ' + str(total_passed_vehicle),
-            (10, 35),
-            font,
-            0.8,
-            (0, 0xFF, 0xFF),
-            2,
-            cv2.FONT_HERSHEY_SIMPLEX,
-            )
-
-        if counter == 1:
-            cv2.line(input_frame, (0, vis_util.ROI_POSITION), (640, vis_util.ROI_POSITION), (0, 0xFF, 0), 5) # -- > Visual Lines
-        else:
-            cv2.line(input_frame, (0, vis_util.ROI_POSITION), (640, vis_util.ROI_POSITION), (0, 0, 0xFF), 5)
         
-        # insert information text to video frame
-        cv2.rectangle(input_frame, (10, 275), (230, 337), (180, 132, 109), -1)
-        cv2.putText(
-            input_frame,
-            'ROI Line',
-            (545, 190),
-            font,
-            0.6,
-            (0, 0, 0xFF),
-            2,
-            cv2.LINE_AA,
-            )
-        cv2.putText(
-            input_frame,
-            'LAST PASSED VEHICLE INFO',
-            (11, 290),
-            font,
-            0.5,
-            (0xFF, 0xFF, 0xFF),
-            1,
-            cv2.FONT_HERSHEY_SIMPLEX,
-            )
-        cv2.putText(
-            input_frame,
-            '-Movement Direction: ' + direction,
-            (14, 302),
-            font,
-            0.4,
-            (0xFF, 0xFF, 0xFF),
-            1,
-            cv2.FONT_HERSHEY_COMPLEX_SMALL,
-            )
-        cv2.putText(
-            input_frame,
-            '-Speed(km/h): ' + str(speed).split(".")[0],
-            (14, 312),
-            font,
-            0.4,
-            (0xFF, 0xFF, 0xFF),
-            1,
-            cv2.FONT_HERSHEY_COMPLEX_SMALL,
-            )
-        
-        cv2.putText(
-            input_frame,
-            '-Color: ' + color,
-            (14, 322),
-            font,
-            0.4,
-            (0xFF, 0xFF, 0xFF),
-            1,
-            cv2.FONT_HERSHEY_COMPLEX_SMALL,
-            )
-        
-        cv2.putText(
-            input_frame,
-            '-Vehicle Size/Type: ' + size,
-            (14, 332),
-            font,
-            0.4,
-            (0xFF, 0xFF, 0xFF),
-            1,
-            cv2.FONT_HERSHEY_COMPLEX_SMALL,
-            )
-        '''
         # Saves tracked to file every x frames
         if len(tracked_list) >= 1000:
             with open(TRACKER_OUTPUT_TEXT_FILE, 'a') as out_file:
@@ -254,6 +171,7 @@ def main():
         # proceed to updating state
         if len(detections) == 0: print('> no detections...')
         else:
+            trackers = []
         
             # input_frame = np array
             # pil_img = Pillow Image
@@ -263,14 +181,24 @@ def main():
             tracker.predict()
             tracker.update(detections)
             
+            def get_bbox_xy(bbox):
+                xmin = int(bbox[0])
+                ymin = int(bbox[1])
+                xmax = int(bbox[2])
+                ymax = int(bbox[3])
+                return xmin, ymin, xmax, ymax
+
+            def calc_centroid(xmin, ymin, xmax, ymax):
+                cx = xmin + (0.5 * xmax)
+                cy = ymin + (0.5 * ymax)
+                return cx, cy
+
             # save object locations
             if len(tracker.tracks) > 0:
                 for track in tracker.tracks:
                     bbox = track.to_tlbr()
-                    xmin = int(bbox[0])
-                    ymin = int(bbox[1])
-                    xmax = int(bbox[2])
-                    ymax = int(bbox[3])
+                    xmin, ymin, xmax, ymax = get_bbox_xy(bbox)
+                    cx, cy = calc_centroid(xmin, ymin, xmax, ymax)
                     detected_vehicle_image = input_frame[int(ymin):int(ymax), int(xmin):int(xmax)]
                     try:
                         predicted_color = color_recognition_api.color_recognition(detected_vehicle_image)
