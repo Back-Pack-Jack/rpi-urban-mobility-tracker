@@ -21,18 +21,19 @@ class Detection(object):
         Bounding box in format `(top left x, top left y, width, height)`.
     confidence : ndarray
         Detector confidence score.
+    class_name : ndarray
+        Detector class.
     feature : ndarray | NoneType
         A feature vector that describes the object contained in this image.
 
     """
 
-    # borrowed from: https://github.com/theAIGuysCode/yolov4-deepsort/blob/8c2c651c71c8151e5d3a66679b1aa6bd7ea6e805/deep_sort/detection.py#L31
     def __init__(self, tlwh, confidence, class_name, feature):
         self.tlwh = np.asarray(tlwh, dtype=np.float)
         self.confidence = float(confidence)
-        self.feature = np.asarray(feature, dtype=np.float32)
         self.class_name = class_name
-        
+        self.feature = np.asarray(feature, dtype=np.float32)
+
     def get_class(self):
         return self.class_name
 

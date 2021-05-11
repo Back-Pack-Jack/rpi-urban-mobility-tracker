@@ -16,49 +16,31 @@ import time
 import logging
 from sys import platform
 import os
+import os.path
+from os import path
+from config import PATHS, DEVICE
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("UMT - Counter")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
+logname = os.path.join(os.path.dirname(__file__),"{}".format(DEVICE.UUID))
+'''
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.INFO)  # Global logging configuration
 
+logger = logging.getLogger("Counter (umt_counter.py) - ")  # Logger for this module
+'''
 # --- Sets platform directories --------------------------------
-if platform == 'linux' or platform == 'linux2':
-    UUID = 'umt/uuid.ssg'
-    IMG_PATH = 'umt/image_capture.png'
-    CSV_PATH = 'object_paths.csv' 
-    DETECTIONS = 'detections.ssg'
-    GATES = 'gates.ssg'
-if platform == 'darwin':
-    UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
-    IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
-    CSV_PATH = 'rpi-urban-mobility-tracker/umt/object_paths.csv' 
-    DETECTIONS = 'rpi-urban-mobility-tracker/umt/detections.ssg'
-    GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
-
-
-with open(UUID, 'rb') as f:
-            UUID = pickle.load(f)
-            logger.info("Loaded UUID")
-
-# --- Initialises the MQTT client to send a message to the server
-DEVICE = UUID
 
 gates = []
 detections = []
 
-# load object paths
-df = pd.read_csv(CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
-df.shape                                        
-
-#  compute detection centroids
-df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
-df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
-
 try:
-        with open(GATES, 'rb') as f: 
+        with open(PATHS.GATES, 'rb') as f: 
             gates = pickle.load(f)
 except:
-    logger.info('Gate load error')
+    #logger.info('Gate load error')
+    pass
 
 
 def ccw(a, b, c):
@@ -72,6 +54,10 @@ def cross(s1, s2):
 
 # now lets cycle throught each objects trajectory and determine if it has crossed either of the gates
 def crossed_gates():
+    #  compute detection centroids
+    df['cx'] = df['bb_left'] + (0.5 * df['bb_width'])
+    df['cy'] = df['bb_top']  + (0.5 * df['bb_height'])
+
     for n, obj_path in df.groupby(by='id'):
         
         # cycle through each time step of trajectory in ascending order
@@ -92,9 +78,22 @@ def crossed_gates():
                 for g, gate in enumerate(gates):
                     if cross(gates[g], [xy_t0, xy_t1]):
                         timecat.insert(0, g)
-                        timecat.insert(0, DEVICE)
+                        timecat.insert(0, DEVICE.UUID)
                         detections.insert(0, timecat)
 
+
+def confirmDetectionContents():
+    if detections == []:
+        if path.exists(PATHS.DETECTIONS):
+            os.remove(PATHS.DETECTIONS)
+        #logger.info('No Detections Found')
+        return False
+    else:
+        with open(PATHS.DETECTIONS, 'wb') as f:
+            pickle.dump(detections, f)
+        sent = client_sock.sendFile(PATHS.DETECTIONS, DEVICE.UUID)
+        #logger.info('Detections Found')
+        return sent
 
 #--- Looks for Outstanding detection files, if a file exists it's opened and
 #--- any new detections are appended to the end and the file saved.
@@ -102,50 +101,65 @@ def crossed_gates():
 #--- or false dependant upon the success of a server connection.
 def sendFile():
     try:
-        with open(DETECTIONS, 'rb') as f:
-            logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
+        with open(PATHS.DETECTIONS, 'rb') as f:
+            #logger.info("Outstanding detections found. Inserted Outstanding Detections into File")
             previous_detections = pickle.load(f)
             for previous_detection in previous_detections:
                 detections.insert(len(detections), previous_detection)
-            print(detections)
-            with open(DETECTIONS, 'wb') as f:
-                pickle.dump(detections, f)
-            sent = client_sock.sendFile(DETECTIONS, DEVICE)
-            return sent
+            #logger.info(detections)
+            confDet = confirmDetectionContents()
+            return confDet
     except FileNotFoundError:
-        logger.info('No Outstanding Detections Found. Dumping detections to file.')
-        with open(DETECTIONS, 'wb') as f:
-            pickle.dump(detections, f)
-        sent = client_sock.sendFile(DETECTIONS, DEVICE)
-        return sent
+        #logger.info('No Outstanding Detections Found. Dumping detections to file.')
+        confDet = confirmDetectionContents()
+        return confDet
+
+# --- Looks for 'object_paths.csv' and loads them into 'df' returning 'True' if the path
+# --- exists and 'False' if not.
+def readObjPaths():
+    global df
+    if(path.exists(PATHS.CSV_PATH)):
+        #logger.info('Loading CSV paths into pandas')
+        df = pd.read_csv(PATHS.CSV_PATH, header=None, names=['frame', 'time', 'class', 'id', 'age', 'obj_t_since_last_update', 'obj_hits', 'bb_left', 'bb_top', 'bb_width', 'bb_height'])
+        df.shape
+        os.remove(PATHS.CSV_PATH)
+        return True
+    else:
+        #logger.info('No CSV path file to send')
+        return False
     
                         
 # --- Pickle the detection list to a byte file --------
 def count():
+    global detections
+    detections = []
+    readyTosend = readObjPaths()
     
-    #--- Runs the algorithm to determine whether anybody has crossed the gates
-    crossed_gates()
-    sent = sendFile()
-    
-    #--- If the file has been sent the existing detection file is deleted and if
-    #--- not the file is retained to be appended to next time the counter runs.
-    if not sent:
-        logger.info('Unable to send File, will retry after detections are calculated')
-        return
+    if readyTosend:
+        crossed_gates() # Runs the algorithm to determine whether anybody has crossed the gates
+        sent = sendFile()
+        # If the file has been sent the existing detection file is deleted and if
+        # not the file is retained to be appended to next time the counter runs.
+        if not sent:
+            #logger.info('Unable to send File, will retry after detections are calculated / No detections to send')
+            return
+        else:
+            os.remove(PATHS.DETECTIONS)
+            #logger.info('File Sent to Server')
     else:
-        os.remove(DETECTIONS)
-        logger.info('File Sent to Server')
+        #logger.info("object_paths.csv - Not yet generated, will retry once scheduled time has elapsed.")
+        pass
+
 
 def main():
-    #schedule.every(15).minutes.do(count)
-    #count()
-    sendFile()
-
+    
+    schedule.every(30).seconds.do(count)
+    
     while 1:
         schedule.run_pending()
         time.sleep(1)
 
+    
+
 if __name__ == '__main__':
     main()
-
-

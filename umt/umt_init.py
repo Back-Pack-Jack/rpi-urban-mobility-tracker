@@ -2,7 +2,7 @@ import uuid
 import pickle
 from mqtt import init_UUID
 import logging
-from picamera import PiCamera
+#from picamera import PiCamera
 from time import sleep
 import pandas as pd
 from PIL import Image
@@ -12,22 +12,22 @@ from tkinter import Tk, Canvas, mainloop, PhotoImage, Label
 from PIL import ImageTk, Image 
 import pickle
 from sys import platform
+from config import PATHS, DEVICE
+'''
+logging.basicConfig(filename='app.log',
+                            filemode='a',
+                            format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                            datefmt='%Y-%m-%d, %H:%M:%S',
+                            level=logging.INFO)  # Global logging configuration
 
-logging.basicConfig(level=logging.WARNING)  # Global logging configuration
-logger = logging.getLogger("init - umt_init")  # Logger for this module
-logger.setLevel(logging.INFO) # Debugging for this file.
-
+logger = logging.getLogger("Initialise (umt_init.py) - ")  # Logger for this module
+'''
 class UMTinit:
 
     def __init__(self):
-        if platform == 'linux' or platform == 'linux2':
-            self.DEV_UUID = 'umt/uuid.ssg'
-            self.IMG_PATH = 'umt/image_capture.png'
-            self.GATES = 'umt/gates.ssg'
-        if platform == 'darwin':
-            self.DEV_UUID = 'rpi-urban-mobility-tracker/umt/uuid.ssg'
-            self.IMG_PATH = 'rpi-urban-mobility-tracker/umt/image_capture.png'
-            self.GATES = 'rpi-urban-mobility-tracker/umt/gates.ssg'
+        self.DEV_UUID = PATHS.UUID
+        self.IMG_PATH = PATHS.IMG_PATH
+        self.GATES = PATHS.GATES
         self.gates = []
 
     # Device looks to find it's UUID no. if it doesn't exist it generates one, communicates it to the server and saves it to 'uuid.ssg'
@@ -35,7 +35,7 @@ class UMTinit:
         try:
             with open(self.DEV_UUID, 'rb') as f:
                 self.DEV_UUID = pickle.load(f)
-                logger.info("Loaded UUID")
+                #logger.info("Loaded UUID")
         except FileNotFoundError:
             device = str(uuid.uuid4())
             init_UUID(device)
@@ -121,6 +121,7 @@ class UMTinit:
         try:
             with open(self.GATES, 'rb') as f:
                 self.gates = pickle.load(f)
+                print(self.gates)
         except FileNotFoundError:
             my_window = Tk() # Defines Tkinter Window
             background_image = ImageTk.PhotoImage(Image.open(self.IMG_PATH)) # Creates an img object
@@ -131,4 +132,5 @@ class UMTinit:
             self.display_gates()
             with open(self.GATES, "wb") as f:
                 pickle.dump(self.gates, f)
+                print(self.gates)
         

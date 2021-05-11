@@ -136,3 +136,19 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+#
+umt/resources/detections.csv
+umt/resources/gates.ssg
+umt/resources/image_capture.png
+umt/resources/object_paths.csv
+umt/resources/uuid.ssg
+
+umt/data/video
+umt/img.png
+
+tests/.DS_Store
+umt/.DS_Store
+.DS_Store
+.gitignore
+umt/weights/
