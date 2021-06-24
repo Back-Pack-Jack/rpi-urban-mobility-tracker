@@ -145,3 +145,26 @@ umt/resources/object_paths.csv
 umt/resources/uuid.ssg
 umt/umt_main.py
 
+umt/img.png
+umt/coral/.DS_Store
+umt/data/.DS_Store
+umt/data/video/results.avi
+umt/data/video/test.mp4
+umt/data/video/test1.mp4
+umt/data/video/test2.mp4
+umt/data/video/test3.mp4
+umt/deep_sort/generate_detections.py~merged
+umt/resources/.DS_Store
+umt/weights/.gitkeep
+umt/weights/checkpoint
+umt/weights/yolov3.tf.data-00000-of-00001
+umt/weights/yolov3.tf.index
+umt/weights/yolov3.weights
+umt/gates.ssg
+commands/certificates/device001.csr
+commands/certificates/device001.key
+commands/certificates/server.csr
+commands/certificates/server.key
+umt/.DS_Store
+.DS_Store
+umt/.DS_Store
